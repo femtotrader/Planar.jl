@@ -172,7 +172,7 @@ track!(s::SimStrategy, what, n=1) = begin
     s[what] += n
 end
 
-# TODO: a method to disable `ping!` calls in SimMode during trace replay must be implemented
+# TODO: a method to disable `call!` calls in SimMode during trace replay must be implemented
 @doc """ Reconstructs strategy state for events trace.
 
 NOTE: Previous ohlcv data must be present from the date of the first event to replay.
@@ -475,7 +475,7 @@ function trace_cancel_order!(s::SimStrategy, ev; orders_active, orders_processed
         decommit!(s, o, ai, true)
         delete!(s, ai, o)
         err = ev.event.data.err
-        st.ping!(s, o, err, ai)
+        st.call!(s, o, err, ai)
     end
     delete!(orders_active, o.id)
     orders_processed[o.id] = o

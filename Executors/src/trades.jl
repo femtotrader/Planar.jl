@@ -21,7 +21,7 @@ function aftertrade!(s::Strategy, ai, o::Union{AnyFOKOrder,AnyIOCOrder,AnyMarket
     end
     decommit!(s, o, ai, true)
     delete!(s, ai, o)
-    isfilled(ai, o) || st.ping!(s, o, NotEnoughCash(_cashfrom(s, ai, o)), ai)
+    isfilled(ai, o) || st.call!(s, o, NotEnoughCash(_cashfrom(s, ai, o)), ai)
 end
 
 @doc """ Removes a filled limit order from the queue
@@ -92,7 +92,7 @@ function _update_from_trade!(s::Strategy, ai, o, trade; actual_price)
     # unqueue or decommit order if filled
     # and update position state
     aftertrade!(s, ai, o, trade)
-    ping!(s, ai, trade, NewTrade())
+    call!(s, ai, trade, NewTrade())
     @ifdebug s.debug_aftertrade(s, ai, o)
     @ifdebug s.debug_check_committments(s, ai)
     @ifdebug s.debug_check_committments(s, ai, trade)

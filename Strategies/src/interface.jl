@@ -7,48 +7,48 @@ Receives:
 - `ctx`: The context of the executor.
 $(TYPEDSIGNATURES)
 "
-ping!(::Strategy, current_time::DateTime, ctx) = error("Not implemented")
-@doc "[`ping!(s::Strategy, ::LoadStrategy)`](@ref)"
+call!(::Strategy, current_time::DateTime, ctx) = error("Not implemented")
+@doc "[`call!(s::Strategy, ::LoadStrategy)`](@ref)"
 struct LoadStrategy <: ExecAction end
-@doc "[`ping!(s::Strategy, ::ResetStrategy)`](@ref)"
+@doc "[`call!(s::Strategy, ::ResetStrategy)`](@ref)"
 struct ResetStrategy <: ExecAction end
-@doc "[`ping!(s::Strategy, ::StrategyMarkets)`](@ref)"
+@doc "[`call!(s::Strategy, ::StrategyMarkets)`](@ref)"
 struct StrategyMarkets <: ExecAction end
-@doc "[`ping!(s::Strategy, ::WarmupPeriod)`](@ref)"
+@doc "[`call!(s::Strategy, ::WarmupPeriod)`](@ref)"
 struct WarmupPeriod <: ExecAction end
-@doc "[`ping!(s::Strategy, ::StartStrategy)`](@ref)"
+@doc "[`call!(s::Strategy, ::StartStrategy)`](@ref)"
 struct StartStrategy <: ExecAction end
-@doc "[`ping!(s::Strategy, ::StopStrategy)`](@ref)"
+@doc "[`call!(s::Strategy, ::StopStrategy)`](@ref)"
 struct StopStrategy <: ExecAction end
 # TODO: maybe methods that dispatch on strategy types should be named `ping` (without excl mark)
 @doc """Called to construct the strategy, should return the strategy instance.
 $(TYPEDSIGNATURES)"""
-ping!(::Type{<:Strategy}, cfg, ::LoadStrategy) = nothing
+call!(::Type{<:Strategy}, cfg, ::LoadStrategy) = nothing
 @doc "Called at the end of the `reset!` function applied to a strategy.
 $(TYPEDSIGNATURES)"
-ping!(::Strategy, ::ResetStrategy) = nothing
+call!(::Strategy, ::ResetStrategy) = nothing
 @doc "How much lookback data the strategy needs. $(TYPEDSIGNATURES)"
-ping!(s::Strategy, ::WarmupPeriod) = s.timeframe.period
+call!(s::Strategy, ::WarmupPeriod) = s.timeframe.period
 @doc "When an order is canceled the strategy is pinged with an order error. $(TYPEDSIGNATURES)"
-ping!(s::Strategy, ::Order, err::OrderError, ::AssetInstance; kwargs...) =
+call!(s::Strategy, ::Order, err::OrderError, ::AssetInstance; kwargs...) =
     event!(exchange(s), AssetEvent, :order_error, s; err)
 @doc "Market symbols that populate the strategy universe"
-ping!(::Type{<:Strategy}, ::StrategyMarkets)::Vector{String} = String[]
+call!(::Type{<:Strategy}, ::StrategyMarkets)::Vector{String} = String[]
 @doc "Called before the strategy is started. $(TYPEDSIGNATURES)"
-ping!(::Strategy, ::StartStrategy) = nothing
+call!(::Strategy, ::StartStrategy) = nothing
 @doc "Called after the strategy is stopped. $(TYPEDSIGNATURES)"
-ping!(::Strategy, ::StopStrategy) = nothing
+call!(::Strategy, ::StopStrategy) = nothing
 
 @doc """ Provides a common interface for strategy execution.
 
-The `interface` macro imports the `ping!` function from the Strategies module, the `assets` and `exchange` functions, and the `pong!` function from the Executors module.
+The `interface` macro imports the `call!` function from the Strategies module, the `assets` and `exchange` functions, and the `call!` function from the Executors module.
 This macro is used to provide a common interface for strategy execution.
 """
 macro interface()
     ex = quote
-        import .Strategies: ping!
+        import .Strategies: call!
         using .Strategies: assets, exchange
-        using .Executors: pong!
+        using .Executors: call!
     end
     esc(ex)
 end

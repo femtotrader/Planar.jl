@@ -17,12 +17,12 @@ const _SYM_SYMBOLS_CACHE = Dict{Symbol,Symbol}()
 
 $(TYPEDSIGNATURES)
 
-The `marketsid` function invokes the `ping!` function with the strategy type and `StrategyMarkets()` as arguments.
+The `marketsid` function invokes the `call!` function with the strategy type and `StrategyMarkets()` as arguments.
 This function is used to fetch the market identifiers associated with a specific strategy type.
 """
-marketsid(t::Type{<:S}) where {S<:Strategy} = invokelatest(ping!, t, StrategyMarkets())
+marketsid(t::Type{<:S}) where {S<:Strategy} = invokelatest(call!, t, StrategyMarkets())
 marketsid(s::S) where {S<:Strategy} = begin
-    ping!(typeof(s), StrategyMarkets())
+    call!(typeof(s), StrategyMarkets())
 end
 Base.Broadcast.broadcastable(s::Strategy) = Ref(s)
 @doc "Assets loaded by the strategy."
@@ -159,7 +159,7 @@ function reset!(s::Strategy, config=false)
     if !isnothing(abs)
         empty!(abs)
     end
-    ping!(s, ResetStrategy())
+    call!(s, ResetStrategy())
 end
 @doc """ Reloads OHLCV data for assets in the strategy universe.
 

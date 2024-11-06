@@ -10,37 +10,37 @@ const TF = tf"1m"
 # @contractsenv!
 # @optenv!
 
-function ping!(s::SC, ::ResetStrategy) end
+function call!(s::SC, ::ResetStrategy) end
 
-function ping!(_::SC, ::WarmupPeriod)
+function call!(_::SC, ::WarmupPeriod)
     Day(1)
 end
 
-function ping!(s::SC, ts::DateTime, _)
+function call!(s::SC, ts::DateTime, _)
     ats = available(s.timeframe, ts)
     foreach(s.universe) do ai
         nothing
     end
 end
 
-function ping!(::Union{<:SC,Type{<:SC}}, ::StrategyMarkets)
+function call!(::Union{<:SC,Type{<:SC}}, ::StrategyMarkets)
     String[]
 end
 
-# function ping!(t::Type{<:SC}, config, ::LoadStrategy)
+# function call!(t::Type{<:SC}, config, ::LoadStrategy)
 # end
 
 ## Optimization
-# function ping!(s::S, ::OptSetup)
+# function call!(s::S, ::OptSetup)
 #     (;
 #         ctx=Context(Sim(), tf"15m", dt"2020-", now()),
 #         params=(),
 #         # space=(kind=:MixedPrecisionRectSearchSpace, precision=Int[]),
 #     )
 # end
-# function ping!(s::S, params, ::OptRun) end
+# function call!(s::S, params, ::OptRun) end
 
-# function ping!(s::S, ::OptScore)::Vector
+# function call!(s::S, ::OptScore)::Vector
 #     [mt.sharpe(s)]
 # end
 

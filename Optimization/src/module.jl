@@ -15,7 +15,7 @@ using REPL.TerminalMenus
 using Pkg: Pkg
 using Base.Threads: threadid
 using SimMode.Misc.DocStringExtensions
-import .st: ping!
+import .st: call!
 
 include("utils.jl")
 
@@ -46,7 +46,7 @@ $(TYPEDSIGNATURES)
 
 This function changes the `value` field of the `RUNNING` instance to `false`, indicating that the optimization process is not currently running.
 """
-stopping!() = @atomic RUNNING.value = false
+stopcall!() = @atomic RUNNING.value = false
 @doc """ Checks if the optimization process is currently running.
 
 $(TYPEDSIGNATURES)
@@ -61,13 +61,13 @@ $(TYPEDSIGNATURES)
 
 The `ctx` field (`Executors.Context`) specifies the backtest time period, while `space` is either an already built `BlackBoxOptim.SearchSpace` subtype or a tuple (`Symbol`, args...) for a pre-defined BBO package search space.
 """
-ping!(::Strategy, ::OptSetup)::ContextSpace = error("not implemented")
+call!(::Strategy, ::OptSetup)::ContextSpace = error("not implemented")
 
 @doc """ Applies parameters to strategy before backtest
 
 $(TYPEDSIGNATURES)
 """
-ping!(::Strategy, params, ::OptRun) = error("not implemented")
+call!(::Strategy, params, ::OptRun) = error("not implemented")
 
 @doc """ A structure representing an optimization session.
 
@@ -385,7 +385,7 @@ It calculates the objective score, the current total cash, the profit and loss r
 The function returns these metrics as a named tuple.
 """
 metrics_func(s; initial_cash) = begin
-    obj = ping!(s, OptScore())
+    obj = call!(s, OptScore())
     # record run
     cash = value(st.current_total(s))
     pnl = cash / initial_cash - 1.0
@@ -415,9 +415,9 @@ function define_backtest_func(sess, small_step, big_step)
             # set params as strategy attributes
             setparams!(s, sess, params)
             # Pre backtest hook
-            ping!(s, params, OptRun())
+            call!(s, params, OptRun())
             # randomize strategy startup time
-            let wp = ping!(s, WarmupPeriod()),
+            let wp = call!(s, WarmupPeriod()),
                 inc = Millisecond(round(Int, small_step / ofs)) + big_step * (n - 1)
 
                 current!(ctx.range, ctx.range.start + wp + inc)
@@ -518,7 +518,7 @@ The function takes a strategy `s` as an argument.
 It returns a tuple containing the type of the objective and the number of objectives.
 """
 function objectives(s)
-    let test_obj = ping!(s, OptScore())
+    let test_obj = call!(s, OptScore())
         typeof(test_obj), length(test_obj)
     end
 end

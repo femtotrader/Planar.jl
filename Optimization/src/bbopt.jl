@@ -51,7 +51,7 @@ This function takes a strategy as input and returns the context, parameters, and
 The search space can be a `SearchSpace` instance, a function, or a tuple where the first element is the BBO space type and the rest are arguments for the space constructor.
 """
 function ctxfromstrat(s)
-    ctx, params, s_space = ping!(s, OptSetup())
+    ctx, params, s_space = call!(s, OptSetup())
     ctx,
     params,
     s_space,
@@ -111,9 +111,9 @@ $(TYPEDSIGNATURES)
   - `TraceMode`: (:silent, :compact, :verbose) controls the logging
   - `MaxSteps`, `MaxStepsWithoutProgress`
 
-From within your strategy, define four `ping!` functions:
-- `ping!(::Strategy, ::OptSetup)`: for the period of time to evaluate and the parameters space for the optimization.
-- `ping!(::Strategy, params, ::OptRun)`: called before running the backtest, should apply the parameters to the strategy.
+From within your strategy, define four `call!` functions:
+- `call!(::Strategy, ::OptSetup)`: for the period of time to evaluate and the parameters space for the optimization.
+- `call!(::Strategy, params, ::OptRun)`: called before running the backtest, should apply the parameters to the strategy.
 """
 function bboptimize(
     s::Strategy{Sim};
@@ -208,12 +208,12 @@ function bboptimize(
         r = bboptimize(opt, initials...)
         sess.best[] = best_candidate(r)
     catch e
-        stopping!()
+        stopcall!()
         Base.show_backtrace(stdout, catch_backtrace())
         save_session(sess; from=from[], zi)
         e isa InterruptException || showerror(stdout, e)
     end
-    stopping!()
+    stopcall!()
     sess, (; opt, r)
 end
 

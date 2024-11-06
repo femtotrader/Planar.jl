@@ -1,11 +1,11 @@
-macro compile_pong()
+macro compile_call()
     expr = quote
         @eval begin
             isdefined(@__MODULE__, :OrderTypes) || using .OrderTypes: OrderTypes as ot
             using .OrderTypes: Buy, Sell
             using .Lang: @ignore, @precomp
             isdefined(@__MODULE__, :Executors) ||
-                using .Executors: pong!, Executors as ect
+                using .Executors: call!, Executors as ect
         end
 
         let
@@ -29,9 +29,9 @@ macro compile_pong()
             end
             @precomp @ignore @sync begin
                 for otp in dispatched_orders()
-                    @async pong!(s, ai, otp; amount, date, prc, synced=false)
+                    @async call!(s, ai, otp; amount, date, prc, synced=false)
                 end
-                @async pong!(
+                @async call!(
                     Returns(nothing),
                     s,
                     ect.InitData();
@@ -39,7 +39,7 @@ macro compile_pong()
                     timeframe=tf"1d",
                     synced=false,
                 )
-                @async pong!(
+                @async call!(
                     Returns(nothing),
                     s,
                     ect.UpdateData();
@@ -47,10 +47,10 @@ macro compile_pong()
                     timeframe=tf"1d",
                     synced=false,
                 )
-                @async pong!(s, ect.WatchOHLCV(), synced=false)
-                @async pong!(s, ai, 1.0, ect.UpdateLeverage(); pos=Long(), synced=false)
-                @async pong!(s, ai, Short(), date, ect.PositionClose(), synced=false)
-                @async pong!(s, ai, ect.CancelOrders(), synced=false)
+                @async call!(s, ect.WatchOHLCV(), synced=false)
+                @async call!(s, ai, 1.0, ect.UpdateLeverage(); pos=Long(), synced=false)
+                @async call!(s, ai, Short(), date, ect.PositionClose(), synced=false)
+                @async call!(s, ai, ect.CancelOrders(), synced=false)
             end
         end
     end

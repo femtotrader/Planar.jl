@@ -151,7 +151,7 @@ function watch_ohlcv!(s::RTStrategy; exc=exchange(s), kwargs...)
         elseif met == :candles
             (exc; syms, kwargs...) -> ccxt_ohlcv_candles_watcher(exc, syms; kwargs...)
         else
-            error("pong: invalid ohlcv method $met")
+            error("call: invalid ohlcv method $met")
         end
         s[:live_ohlcv_watcher] =
             w = watcher_func(

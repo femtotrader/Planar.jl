@@ -1,4 +1,4 @@
-import .egn: ExecAction, pong!
+import .egn: ExecAction, call!
 using .egn: WarmupPeriod
 
 struct SimWarmup <: ExecAction end
@@ -9,7 +9,7 @@ Initializes warmup attributes for a strategy.
 
 $(TYPEDSIGNATURES)
 """
-function pong!(s::Strategy, ::InitSimWarmup; timeout=Minute(15), n_candles=999)
+function call!(s::Strategy, ::InitSimWarmup; timeout=Minute(15), n_candles=999)
     attrs = s.attrs
     attrs[:warmup] = Dict(ai => false for ai in s.universe)
     attrs[:warmup_lock] = ReentrantLock()
@@ -18,7 +18,7 @@ function pong!(s::Strategy, ::InitSimWarmup; timeout=Minute(15), n_candles=999)
     attrs[:warmup_running] = false
 end
 
-function pong!(
+function call!(
     cb::Function, s::SimStrategy, ai, ats, ::SimWarmup; n_candles=s.warmup_candles
 )
     if !s.warmup[ai] && !s.warmup_running
@@ -33,7 +33,7 @@ $(TYPEDSIGNATURES)
 
 If warmup has not been previously completed for the given asset instance, it performs the necessary preparations.
 """
-function pong!(
+function call!(
     cb::Function,
     s::RTStrategy,
     ai::AssetInstance,
@@ -66,7 +66,7 @@ function _warmup!(
 )
     # wait until ohlcv data is available
     @debug "warmup: checking ohlcv data"
-    since = ats - min(ping!(s, WarmupPeriod()), (s.timeframe * n_candles).period)
+    since = ats - min(call!(s, WarmupPeriod()), (s.timeframe * n_candles).period)
     for ohlcv in values(ohlcv_dict(ai))
         if dateindex(ohlcv, since) < 1
             @debug "warmup: no data" ai = raw(ai) ats

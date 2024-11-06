@@ -609,7 +609,7 @@ function cancel!(s::Strategy, o::Order, ai; err::OrderError)::Bool
         decommit!(s, o, ai, true)
         @debug "order cancel" s.cash_committed.value
         delete!(s, ai, o)
-        st.ping!(s, o, err, ai)
+        st.call!(s, o, err, ai)
     end
     true
 end

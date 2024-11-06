@@ -9,7 +9,7 @@ Once the order is placed, it synchronizes the cash balance in the live strategy 
 It returns the trade information once the transaction is complete.
 
 """
-function pong!(
+function call!(
     s::NoMarginStrategy{Live},
     ai,
     t::Type{<:AnyLimitOrder};
@@ -42,7 +42,7 @@ Once the order is placed, it synchronizes the cash balance in the live strategy 
 It returns the trade information once the transaction is complete.
 
 """
-function pong!(
+function call!(
     s::NoMarginStrategy{Live},
     ai,
     t::Type{<:AnyMarketOrder};
@@ -75,7 +75,7 @@ Once the orders are canceled, it waits for confirmation of the cancelation and t
 It returns a boolean indicating whether the cancellation was successful.
 
 """
-function pong!(
+function call!(
     s::Strategy{Live},
     ai::AssetInstance,
     ::CancelOrders;
@@ -88,7 +88,7 @@ function pong!(
     @timeout_start
     @lock ai begin
         if !hasorders(s, ai, t) && !confirm
-            @debug "pong cancel orders: no local open orders" _module = LogCancelOrder ai t
+            @debug "call cancel orders: no local open orders" _module = LogCancelOrder ai t
             return true
         end
         watch_orders!(s, ai)
@@ -96,19 +96,19 @@ function pong!(
             success = waitordclose(s, ai, @timeout_now; t)
             if success
                 if synced
-                    @debug "pong cancel orders: syncing cash" ai t _module =
+                    @debug "call cancel orders: syncing cash" ai t _module =
                         LogCancelOrder
                     live_sync_cash!(s, ai; waitfor=@timeout_now)
                 end
             else
-                @debug "pong cancel orders: failed syncing open orders" ai t _module =
+                @debug "call cancel orders: failed syncing open orders" ai t _module =
                     LogCancelOrder
                 live_sync_open_orders!(s, ai, exec=true)
             end
-            @debug "pong cancel orders: " ai t success _module = LogCancelOrder
+            @debug "call cancel orders: " ai t success _module = LogCancelOrder
             success
         else
-            @debug "pong cancel orders: failed" ai t success _module = LogCancelOrder
+            @debug "call cancel orders: failed" ai t success _module = LogCancelOrder
             false
         end
     end

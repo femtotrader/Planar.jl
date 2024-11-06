@@ -10,25 +10,25 @@ const MARGIN = NoMargin
 using Indicators: ema, rsi, Indicators
 @enum Trend Down = 0 Up = 1
 
-function ping!(s::SC, ::ResetStrategy)
+function call!(s::SC, ::ResetStrategy)
     for n in (15, 40)
-        pong!(
+        call!(
             (args...) -> ind_ema(args...; n),
             s,
             InitData();
             cols=(Symbol(:ema, n),),
             timeframe=tf"1h",
         )
-        pong!(ind_rsi, s, InitData(); cols=(:rsi,), timeframe=tf"15m")
+        call!(ind_rsi, s, InitData(); cols=(:rsi,), timeframe=tf"15m")
     end
 end
 
-function ping!(_::SC, ::WarmupPeriod)
+function call!(_::SC, ::WarmupPeriod)
     Day(1)
 end
 function update_data!(s, ai)
     for n in (15, 40)
-        pong!(
+        call!(
             (args...) -> ind_ema(args...; n),
             s,
             ai,
@@ -37,7 +37,7 @@ function update_data!(s, ai)
             timeframe=tf"1h",
         )
     end
-    pong!(ind_rsi, s, ai, UpdateData(); cols=(:rsi,), timeframe=tf"1h")
+    call!(ind_rsi, s, ai, UpdateData(); cols=(:rsi,), timeframe=tf"1h")
 end
 function handler(s, ai, ats, date)
     ohlcv = ai.data[tf"1h"]
@@ -49,25 +49,25 @@ function handler(s, ai, ats, date)
         price = closeat(ohlcv, ats)
         amount = freecash(s) / price
         @linfo "Buying" asset = raw(ai) amount price
-        pong!(s, ai, MarketOrder{Buy}; date, amount)
+        call!(s, ai, MarketOrder{Buy}; date, amount)
     elseif this_trend == Down && this_rsi > 60
         price = closeat(ohlcv, ats)
         if !isdust(ai, price)
             amount = float(ai)
             @linfo "Selling" asset = raw(ai) amount price
-            pong!(s, ai, CancelOrders())
-            pong!(s, ai, MarketOrder{Sell}; date, amount)
+            call!(s, ai, CancelOrders())
+            call!(s, ai, MarketOrder{Sell}; date, amount)
         end
     end
 end
-function ping!(s::SC, ts::DateTime, _)
+function call!(s::SC, ts::DateTime, _)
     ats = available(tf"1h", ts)
     foreach(s.universe) do ai
         update_data!(s, ai)
         handler(s, ai, ats, ts)
     end
 end
-function ping!(::Type{<:SC}, ::StrategyMarkets)
+function call!(::Type{<:SC}, ::StrategyMarkets)
     String["BTC/USDT"]
 end
 

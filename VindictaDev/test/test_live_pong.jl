@@ -54,12 +54,12 @@ function _reset_remote_pos(s, ai)
         waitfor = round(lm.throttle(s), Second, RoundUp) + Second(1)
         @test if isopen(ai, Long) || isopen(ai, Short)
             @info "TEST: PositionClose" posside(pos) cash(ai)
-            ect.pong!(s, ai, posside(pos), now(), ect.PositionClose(); waitfor)
+            ect.call!(s, ai, posside(pos), now(), ect.PositionClose(); waitfor)
         else
             @test !isopen(ai)
             @info "TEST: CancelOrders" side = isnothing(pos) ? nothing : posside(pos)
             lm.waitsync(ai)
-            if ect.pong!(s, ai, ect.CancelOrders(); t=BuyOrSell)
+            if ect.call!(s, ai, ect.CancelOrders(); t=BuyOrSell)
                 true
             else
                 lm.waitsync(ai; waitfor)
@@ -103,8 +103,8 @@ _waitwatchers(s) = begin
     end
 end
 
-function test_live_pong_mg(s)
-    @info "TEST: pong mg"
+function test_live_call_mg(s)
+    @info "TEST: call mg"
     ai = s[m"btc"]
     amount = 2ai.limits.amount.min
     eid = exchangeid(ai)
@@ -143,7 +143,7 @@ function test_live_pong_mg(s)
     @test !isopen(ai)
 
     @info "TEST: Short sell" amount cash(ai, Short)
-    trade = ect.pong!(s, ai, ShortGTCOrder{Sell}; amount, price=lastprice(ai) - 100, skipchecks=true)
+    trade = ect.call!(s, ai, ShortGTCOrder{Sell}; amount, price=lastprice(ai) - 100, skipchecks=true)
     @test !isnothing(trade)
     o = nothing
     if ismissing(trade)
@@ -179,7 +179,7 @@ function test_live_pong_mg(s)
     @test iszero(cash(ai, Long()))
     @test isopen(ai, Short())
     @info "TEST: Position Close (2nd)" ai
-    @test ect.pong!(s, ai, Short(), now(), ect.PositionClose(); waitfor)
+    @test ect.call!(s, ai, Short(), now(), ect.PositionClose(); waitfor)
     @info "TEST: wait posclose" waitfor
     lm.waitposclose(s, ai, Short(); waitfor)
     @test lm.waitposclose(s, ai, Short(); waitfor)
@@ -201,7 +201,7 @@ function test_live_pong_mg(s)
             sleep_n = n
             @async let
                 sleep(sleep_n) # this avoid potential orders having same date on some exchanges
-                trade = ect.pong!(s, ai, GTCOrder{Buy}; amount=long_amount, price, waitfor)
+                trade = ect.call!(s, ai, GTCOrder{Buy}; amount=long_amount, price, waitfor)
                 if !isnothing(trade)
                     n_trades += 1
                     if ismissing(trade)
@@ -251,7 +251,7 @@ function test_live_pong_mg(s)
     @test !isnothing(lm.get_positions(s, ai, Short()))
     tries = 0
     while tries < 3
-        if ect.pong!(s, ai, posside(ai), now(), ect.PositionClose(); waitfor)
+        if ect.call!(s, ai, posside(ai), now(), ect.PositionClose(); waitfor)
             break
         end
         tries += 1
@@ -262,8 +262,8 @@ function test_live_pong_mg(s)
     @test lm.live_contracts(s, ai, force=true) == 0
 end
 
-function test_live_pong_nm_gtc(s)
-    @info "TEST: pong nm gtc"
+function test_live_call_nm_gtc(s)
+    @info "TEST: call nm gtc"
     @test s isa lm.NoMarginStrategy
     ai = s[m"btc"]
     setglobal!(Main, :ai, ai)
@@ -274,7 +274,7 @@ function test_live_pong_nm_gtc(s)
     waitfor = Second(3)
     _waitwatchers(s)
     if lm.hasorders(s, ai)
-        @test ect.pong!(s, ai, ect.CancelOrders(); t=BuyOrSell)
+        @test ect.call!(s, ai, ect.CancelOrders(); t=BuyOrSell)
         @test lm.waitsync(ai, waitfor=Second(3))
     end
     lm.waitsync(s, waitfor=Second(5), waitwatchers=true)
@@ -289,7 +289,7 @@ function test_live_pong_nm_gtc(s)
     lp = lastprice(ai)
     price = lp + lp * 0.02
     amount = 0.001
-    t = ect.pong!(s, ai, GTCOrder{Buy}; amount, price, waitfor)
+    t = ect.call!(s, ai, GTCOrder{Buy}; amount, price, waitfor)
     if ismissing(t)
         o = first(values(s, ai))
         if lm.waittrade(s, ai, o; waitfor=Second(10))
@@ -310,28 +310,28 @@ function test_live_pong_nm_gtc(s)
     sell_count = lm.orderscount(s, ai, Sell)
     buy_price = lp - lp * 0.10
     @info "TEST: " buy_price
-    t = ect.pong!(s, ai, GTCOrder{Buy}; amount, price=buy_price, waitfor)
+    t = ect.call!(s, ai, GTCOrder{Buy}; amount, price=buy_price, waitfor)
     @info "TEST: " t
     @test ismissing(t)
     @test lm.orderscount(s, ai, Buy) == buy_count + 1
     @test lm.orderscount(s, ai, Sell) == sell_count
     lp = lastprice(s, ai, Sell)
-    ect.pong!(s, ai, GTCOrder{Buy}; amount, price=buy_price, waitfor)
+    ect.call!(s, ai, GTCOrder{Buy}; amount, price=buy_price, waitfor)
     @test lm.orderscount(s, ai, Buy) == buy_count + 2
     sell_price = lp + lp * 0.04
     @info "TEST: " sell_price
-    ect.pong!(s, ai, GTCOrder{Sell}; amount, price=sell_price, waitfor)
+    ect.call!(s, ai, GTCOrder{Sell}; amount, price=sell_price, waitfor)
     @test lm.orderscount(s, ai, Buy) == buy_count + 2
     @test lm.orderscount(s, ai, Sell) == 1
-    @test ect.pong!(s, ai, ect.CancelOrders(); t=Buy)
+    @test ect.call!(s, ai, ect.CancelOrders(); t=Buy)
     @test lm.orderscount(s, ai, Buy) == 0
     @test lm.orderscount(s, ai, Sell) == 1
-    @test ect.pong!(s, ai, ect.CancelOrders(); t=BuyOrSell)
+    @test ect.call!(s, ai, ect.CancelOrders(); t=BuyOrSell)
     @test lm.orderscount(s, ai) == 0
 end
 
-function test_live_pong_nm_market(s)
-    @info "TEST: pong nm market"
+function test_live_call_nm_market(s)
+    @info "TEST: call nm market"
     @test s isa st.NoMarginStrategy
     reset!(s)
     @test lm.hasattr(s, :trades_cache_ttl)
@@ -346,9 +346,9 @@ function test_live_pong_nm_market(s)
     amount = ai.limits.cost.min / this_price + ai.limits.amount.min
     @info "TEST: market 1" prev_cash
     if s.cash < amount * this_price
-        lm.pong!(s, ai, MarketOrder{Sell}, amount=prev_cash)
+        lm.call!(s, ai, MarketOrder{Sell}, amount=prev_cash)
     end
-    t = ect.pong!(s, ai, MarketOrder{side}; amount)
+    t = ect.call!(s, ai, MarketOrder{side}; amount)
     if ismissing(t)
         o = last(lm.orders(s, ai, side))
         @test isfilled(ai, o) || lm.waitorder(s, ai, o; waitfor=Second(3))
@@ -369,7 +369,7 @@ function test_live_pong_nm_market(s)
     @info "TEST: nm_market gtxzero" cash(ai) diff prev_cash amount fees
     @test ect.gtxzero(ai, diff, Val(:amount))
     @test length(ai.history) > prev_trades
-    t = ect.pong!(s, ai, MarketOrder{side}; amount, waitfor=Second(0), synced=false, skipchecks=true)
+    t = ect.call!(s, ai, MarketOrder{side}; amount, waitfor=Second(0), synced=false, skipchecks=true)
     @test ismissing(t) || t isa Trade
     @test if ect.isfilled(ai, o)
         lm.waitsync(ai, waitfor=Second(3))
@@ -410,7 +410,7 @@ function _test_live_nm_fok_ioc(s, type)
         lm.live_sync_cash!(s, ai, waitfor=Second(3))
     end
     if lm.isdust(ai, lp)
-        ect.pong!(s, ai, MarketOrder{Buy}; amount=3amount, waitfor)
+        ect.call!(s, ai, MarketOrder{Buy}; amount=3amount, waitfor)
         lm.waitorder(s, ai, first(s, ai, Buy))
         @test s.cash <= this_quote - last(ai.history).order.value
     end
@@ -426,7 +426,7 @@ function _test_live_nm_fok_ioc(s, type)
         price = lp - 100
         amount = ai.limits.cost.min / price + ai.limits.amount.min
         @info "TEST: " committed(ai)
-        t = ect.pong!(s, ai, type{side}; amount, price, waitfor)
+        t = ect.call!(s, ai, type{side}; amount, price, waitfor)
         t isa Trade && break
     end
     @test t isa Trade
@@ -453,13 +453,13 @@ function _test_live_nm_fok_ioc(s, type)
     @test length(ai.history) > prev_trades
 end
 
-function test_live_pong_nm_ioc(s)
-    @info "TEST: pong nm ioc"
+function test_live_call_nm_ioc(s)
+    @info "TEST: call nm ioc"
     _test_live_nm_fok_ioc(s, IOCOrder)
 end
 
-function test_live_pong_nm_fok(s)
-    @info "TEST: pong nm fok"
+function test_live_call_nm_fok(s)
+    @info "TEST: call nm fok"
     start!(s)
     @test lm.hasattr(s, :trades_cache_ttl)
     @test isrunning(s)
@@ -477,7 +477,7 @@ function test_live_pong_nm_fok(s)
     prev_trades = length(ai.history)
     prev_comm = committed(ai)
     prev_orders = length(lm.orders(s, ai, Sell))
-    t = ect.pong!(s, ai, FOKOrder{Sell}; amount, price=sell_price, waitfor)
+    t = ect.call!(s, ai, FOKOrder{Sell}; amount, price=sell_price, waitfor)
     @info "TEST: " t
     if ismissing(t)
         @test lm.waitorder(s, ai, waitfor=Second(10))
@@ -497,7 +497,7 @@ mm_debug = "Executors,LogWatchPos,LogWatchPosProcess,LogWatchTrade,LogPosClose,L
 nm_debug = "Executors,LogWatchTrade,LogCreateOrder,LogCreateTrade,LogEvents"
 
 # NOTE: phemex testnet is disabled during weekends
-function test_live_pong(exchange=EXCHANGE, mm_exchange=EXCHANGE_MM; debug="Executors,LogCreateOrder,LogSyncOrder,LogWatchOrder,LogWatchTrade,LogPosSync,LogTradeFetch",
+function test_live_call(exchange=EXCHANGE, mm_exchange=EXCHANGE_MM; debug="Executors,LogCreateOrder,LogSyncOrder,LogWatchOrder,LogWatchTrade,LogPosSync,LogTradeFetch",
     sync=false, stop=true, save=false, clear_deadlocks=true)
     @eval begin
         if !isdefined(Main, :_live_load)
@@ -537,7 +537,7 @@ function test_live_pong(exchange=EXCHANGE, mm_exchange=EXCHANGE_MM; debug="Execu
             end
             setglobal!(Main, :s, s)
             try
-                @testset test_live_pong_mg(s)
+                @testset test_live_call_mg(s)
             finally
                 setglobal!(Main, :w, lm.watch_positions!(s))
                 if $stop
@@ -550,10 +550,10 @@ function test_live_pong(exchange=EXCHANGE, mm_exchange=EXCHANGE_MM; debug="Execu
             s = live_strat(:Example; exchange, initial_cash=1e8, skip_sync=true)
             setglobal!(Main, :s, s)
             try
-                @testset test_live_pong_nm_gtc(s)
-                @testset test_live_pong_nm_market(s)
-                @testset test_live_pong_nm_ioc(s)
-                @testset test_live_pong_nm_fok(s)
+                @testset test_live_call_nm_gtc(s)
+                @testset test_live_call_nm_market(s)
+                @testset test_live_call_nm_ioc(s)
+                @testset test_live_call_nm_fok(s)
             finally
                 if $stop
                     t = @async lm.stop!(s)

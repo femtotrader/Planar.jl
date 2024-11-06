@@ -8,7 +8,7 @@ $(TYPEDSIGNATURES)
 This function triggers the execution of the OHLCV (Open, High, Low, Close, Volume) watcher for a real-time strategy `s`.
 
 """
-pong!(s::RTStrategy, ::WatchOHLCV, args...; kwargs...) = watch_ohlcv!(s, args...; kwargs...)
+call!(s::RTStrategy, ::WatchOHLCV, args...; kwargs...) = watch_ohlcv!(s, args...; kwargs...)
 @doc """ Triggers the data update for a real-time strategy.
 
 $(TYPEDSIGNATURES)
@@ -16,7 +16,7 @@ $(TYPEDSIGNATURES)
 This function initiates the update of data for a real-time strategy `s`. The update is performed for the specified columns `cols` and uses the provided timeframe `timeframe`.
 
 """
-function pong!(
+function call!(
     f::Function,
     s::RTStrategy,
     ::UpdateData;
@@ -32,7 +32,7 @@ $(TYPEDSIGNATURES)
 This function triggers the update of data for a specific asset instance `ai` in a real-time strategy `s`. The update is performed for the specified columns `cols` and uses the provided timeframe `timeframe`.
 
 """
-function pong!(
+function call!(
     f::Function,
     s::RTStrategy,
     ai::AssetInstance,
@@ -50,7 +50,7 @@ $(TYPEDSIGNATURES)
 This function initializes the data for a real-time strategy `s`. The initialization is performed for the specified columns `cols` and uses the provided timeframe `timeframe`. After the initialization, the `updated_at!` function is called to update the timestamp for the updated columns.
 
 """
-function pong!(
+function call!(
     f::Function,
     s::RTStrategy,
     ::InitData;

@@ -8,7 +8,7 @@ using .Strategies: lowat, highat, closeat, openat, volumeat
 using .Strategies: IsolatedStrategy, NoMarginStrategy
 using .OrderTypes: BuyOrder, SellOrder, ShortBuyOrder, ShortSellOrder
 using .OrderTypes: OrderTypes as ot, PositionSide
-import .Strategies: ping!
+import .Strategies: call!
 import Executors: maketrade
 
 include("slippage.jl")

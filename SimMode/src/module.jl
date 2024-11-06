@@ -4,7 +4,7 @@ using Executors: Strategies, Strategies as st
 using Simulations: Simulations as sml
 using Simulations.Processing.Alignments
 
-using .Strategies: Strategy, ping!, WarmupPeriod, OrderTypes
+using .Strategies: Strategy, call!, WarmupPeriod, OrderTypes
 using .OrderTypes
 using .OrderTypes: LimitOrderType, MarketOrderType
 using .Misc
@@ -19,23 +19,23 @@ using Executors.Instances: getexchange!
 using Executors.Instruments
 using Executors.Instruments: @importcash!
 using Executors: attr
-import Executors: pong!
+import Executors: call!
 @importcash!
 
 include("trades.jl")
 include("orders/utils.jl")
 include("orders/limit.jl")
 include("orders/market.jl")
-include("orders/pong.jl")
+include("orders/call.jl")
 include("orders/updates.jl")
 
 include("positions/utils.jl")
-include("positions/ping.jl")
-include("positions/pong.jl")
+include("positions/s_call.jl")
+include("positions/call.jl")
 
 include("backtest.jl")
-include("pong.jl")
-include("ping.jl")
+include("call.jl")
+include("s_call.jl")
 @ifdebug include("debug.jl")
 
 export start!

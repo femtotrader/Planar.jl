@@ -181,7 +181,7 @@ $(TYPEDSIGNATURES)
 The function groups the results by session parameters and removes those groups that don't have a complete set of evaluations, as defined by the `splits` attribute of the session.
 """
 function optsession(s::Strategy; seed=1, splits=1, offset=0)
-    ctx, params, grid = ping!(s, OptSetup())
+    ctx, params, grid = call!(s, OptSetup())
     OptSession(s; ctx, params, offset, attrs=Dict(pairs((; seed, splits))))
 end
 
@@ -197,7 +197,7 @@ $(TYPEDSIGNATURES)
 
 One parameter combination runs `splits` times, where each run uses a period
 that is a segment of the full period of the given `Context` given.
-(The `Context` comes from the strategy `ping!(s, params, OptRun())`
+(The `Context` comes from the strategy `call!(s, params, OptRun())`
 """
 function gridsearch(
     s::Strategy{Sim};
@@ -294,7 +294,7 @@ function gridsearch(
                             runner(cell)
                         catch
                             @error "" exception = (first(Base.catch_stack())...,)
-                            stopping!()
+                            stopcall!()
                             logging && @lock grid_lock @debug_backtrace
                         end
                     end
@@ -309,7 +309,7 @@ function gridsearch(
             rethrow(e)
         end
     finally
-        stopping!()
+        stopcall!()
         if logging
             flush(io)
             close(io)
@@ -401,10 +401,10 @@ Until a full range of timeframes is reached between the strategy timeframe and b
 - `multiplier`: the steps count (total stepps will be `multiplier * context_timeframe / s.timeframe` )
 "
 function slidesearch(s::Strategy; multiplier=1)
-    ctx, _, _ = ping!(s, OptSetup())
+    ctx, _, _ = call!(s, OptSetup())
     inc = period(s.timeframe)
     steps = multiplier * max(1, trunc(Int, ctx.range.step / period(s.timeframe)))
-    wp = ping!(s, WarmupPeriod())
+    wp = call!(s, WarmupPeriod())
     results = DataFrame()
     initial_cash = s.initial_cash
     rlock = ReentrantLock()

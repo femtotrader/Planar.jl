@@ -2,24 +2,24 @@
 
 To perform a backtest, you need to construct a strategy by following the guidelines in the [Strategy Documentation](../strategy.md). Once the strategy is created, you can call the `start!` function on it to begin the backtest.
 
-The entry function that is called in all modes is `ping!(s::Strategy, ts::DateTime, ctx)`. This function takes three arguments:
+The entry function that is called in all modes is `call!(s::Strategy, ts::DateTime, ctx)`. This function takes three arguments:
 - `s`: The strategy object that you have created.
 - `ts`: The current date. In live mode, it is very close to `now()`, while in simulation mode, it is the date of the iteration step.
 - `ctx`: Additional context information that can be passed to the function.
 
-During the backtest, the `ping!` function is responsible for executing the strategy's logic at each timestep. It is called repeatedly with updated values of `ts` until the backtest is complete.
+During the backtest, the `call!` function is responsible for executing the strategy's logic at each timestep. It is called repeatedly with updated values of `ts` until the backtest is complete.
 
-It is important to note that the `ping!` function should be implemented in your strategy module according to your specific trading logic.
+It is important to note that the `call!` function should be implemented in your strategy module according to your specific trading logic.
 
 ## Example
 
-Here is an example of how to use the `ping!` function in a strategy module:
+Here is an example of how to use the `call!` function in a strategy module:
 
 ```julia
 module ExampleStrategy
 
-# Define the ping! function
-ping!(s::Strategy, ts::DateTime, ctx) = begin
+# Define the call! function
+call!(s::Strategy, ts::DateTime, ctx) = begin
     # Insert your trading logic here
 end
 
@@ -58,13 +58,13 @@ Our backtest indicates that our strategy:
 - At the end, there were **3 open buy orders** and **no open sell orders**.
 # Orders
 
-To place a limit order within your strategy, you call `pong!` just like any call to the executor. Here are the arguments:
+To place a limit order within your strategy, you call `call!` just like any call to the executor. Here are the arguments:
 
 ```julia
-trade = pong!(s, GTCOrder{Buy}, ai; price, amount, date=ts)
+trade = call!(s, GTCOrder{Buy}, ai; price, amount, date=ts)
 ```
 
-Where `s` is your `Strategy{Sim, ...}` instance, `ai` is the `AssetInstance` to which the order refers (it should be one present in your `s.universe`). The `amount` is the quantity in base currency and `date` should be the one fed to the `ping!` function. During backtesting, this would be the current timestamp being evaluated, and during live trading, it would be a recent timestamp. If you look at the example strategy, `ts` is _current_ and `ats` is _available_. The available timestamp `ats` is the one that matches the last candle that doesn't give you forward knowledge. The `date` given to the order call (`pong!`) must always be the _current_ timestamp.
+Where `s` is your `Strategy{Sim, ...}` instance, `ai` is the `AssetInstance` to which the order refers (it should be one present in your `s.universe`). The `amount` is the quantity in base currency and `date` should be the one fed to the `call!` function. During backtesting, this would be the current timestamp being evaluated, and during live trading, it would be a recent timestamp. If you look at the example strategy, `ts` is _current_ and `ats` is _available_. The available timestamp `ats` is the one that matches the last candle that doesn't give you forward knowledge. The `date` given to the order call (`call!`) must always be the _current_ timestamp.
 
 A limit order call might return a trade if the order was queued correctly. If the trade hasn't completed the order, the order is queued in `s.buy/sellorders[ai]`. If `isnothing(trade)` is `true`, it means the order failed and was not scheduled. This can happen if the cost of the trade did not meet the asset limits, or there wasn't enough commitable cash. If instead `ismissing(trade)` is `true`, it means that the order was scheduled, but no trade has yet been performed. In backtesting, this happens if the price of the order is too low (buy) or too high (sell) for the current candle high/low prices.
 
@@ -76,11 +76,11 @@ In addition to GTC (Good Till Canceled) orders, there are also IOC (Immediate Or
 - IOC: This order must be executed immediately. Any portion of the order that cannot be filled immediately will be canceled.
 - FOK: This order must be executed in its entirety or not at all.
 
-All three are subtypes of a limit order, `<: LimitOrder>`. You can create them by calling `pong!` as shown below:
+All three are subtypes of a limit order, `<: LimitOrder>`. You can create them by calling `call!` as shown below:
 
 ```julia
-trade = pong!(s, IOCOrder{Buy}, ai; price, amount, date=ts)
-trade = pong!(s, FOKOrder{Sell}, ai; price, amount, date=ts)
+trade = call!(s, IOCOrder{Buy}, ai; price, amount, date=ts)
+trade = call!(s, FOKOrder{Sell}, ai; price, amount, date=ts)
 ```
 
 ## Market Order Types
@@ -94,7 +94,7 @@ Market order types include:
 All of these behave in the same way, except for the LiquidationOrder. For example, a ReduceOnlyOrder is triggered when manually closing a position, as shown below:
 
 ```julia
-pong!(s, ai, Long(), now(), PositionClose())
+call!(s, ai, Long(), now(), PositionClose())
 ```
 
 ## Market Orders

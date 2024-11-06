@@ -16,13 +16,13 @@ include("common.jl")
 function _reset_pos!(s, def_lev=get!(s.attrs, :def_lev, 1.0); synced=true)
     @sync for ai in s.universe
         @async begin
-            pong!(s, ai, def_lev, UpdateLeverage(); pos=Long(), synced)
-            pong!(s, ai, def_lev, UpdateLeverage(); pos=Short(), synced)
+            call!(s, ai, def_lev, UpdateLeverage(); pos=Long(), synced)
+            call!(s, ai, def_lev, UpdateLeverage(); pos=Short(), synced)
         end
     end
 end
 
-ping!(s::S, ::ResetStrategy) = begin
+call!(s::S, ::ResetStrategy) = begin
     skip_watcher = attr(s, :skip_watcher, false)
     _reset!(s)
     s.attrs[:buydiff] = 1.0001
@@ -43,7 +43,7 @@ ping!(s::S, ::ResetStrategy) = begin
     _initparams!(s)
     skip_watcher || _tickers_watcher(s)
 end
-function ping!(t::Type{<:SC}, config, ::LoadStrategy)
+function call!(t::Type{<:SC}, config, ::LoadStrategy)
     SANDBOX[] = config.sandbox
     s = st.default_load(@__MODULE__, t, config)
     _reset!(s)
@@ -54,7 +54,7 @@ function ping!(t::Type{<:SC}, config, ::LoadStrategy)
     s
 end
 
-ping!(_::S, ::WarmupPeriod) = Day(1)
+call!(_::S, ::WarmupPeriod) = Day(1)
 
 _initparams!(s, params=_params()) = begin
     params_index = st.attr(s, :params_index)
@@ -67,7 +67,7 @@ function _params()
     (; buydiff=1.0001:0.0001:1.001, selldiff=1.0002:0.0001:1.0011)
 end
 
-function ping!(s::T, ts::DateTime, _) where {T<:SC}
+function call!(s::T, ts::DateTime, _) where {T<:SC}
     ats = available(tf"1m", ts)
     foreach(s.universe) do ai
         pos = nothing
@@ -87,11 +87,11 @@ if_asset_available(s, assets=("ETH/USDT:USDT", "BTC/USDT:USDT", "SOL/USDT:USDT")
     [a for a in assets if a in keys(e.markets)]
 end
 
-function ping!(s::Union{<:SC,Type{<:SC}}, ::StrategyMarkets)
+function call!(s::Union{<:SC,Type{<:SC}}, ::StrategyMarkets)
     @something ASSETS[] (ASSETS[] = if_asset_available(s))
 end
 
-function ping!(s::Union{<:S,Type{<:S}}, ::StrategyMarkets) where {S<:SC{ExchangeID{:bybit}}}
+function call!(s::Union{<:S,Type{<:S}}, ::StrategyMarkets) where {S<:SC{ExchangeID{:bybit}}}
     @something ASSETS[] (ASSETS[] = if_asset_available(s))
 end
 
@@ -124,11 +124,11 @@ function update_leverage!(s, ai, pos, ats)
         diff = abs(1.0 - r)
         clamp(_levk(s, pos) / diff, 1.0, 100.0)
     end
-    pong!(s, ai, lev, UpdateLeverage(); pos)
+    call!(s, ai, lev, UpdateLeverage(); pos)
 end
 
 function buy!(s, ai, ats, ts; lev)
-    pong!(s, ai, CancelOrders(); t=Sell)
+    call!(s, ai, CancelOrders(); t=Sell)
     @deassert ai.asset.qc == nameof(s.cash)
     p = @something inst.position(ai) inst.position(ai, Long())
     ok = false
@@ -152,17 +152,17 @@ function buy!(s, ai, ats, ts; lev)
         update_leverage!(s, ai, order_p, ats)
         ot, otsym = select_ordertype(s, Buy, order_p)
         kwargs = select_orderkwargs(otsym, Buy, ai, ats)
-        t = pong!(s, ai, ot; amount, date=ts, kwargs...)
+        t = call!(s, ai, ot; amount, date=ts, kwargs...)
         if !isnothing(t) && order_p == Short()
             ot, otsym = select_ordertype(s, Buy, Long())
             kwargs = select_orderkwargs(otsym, Buy, ai, ats)
-            t = pong!(s, ai, ot; amount, date=ts, kwargs...)
+            t = call!(s, ai, ot; amount, date=ts, kwargs...)
         end
     end
 end
 
 function sell!(s, ai, ats, ts; lev)
-    pong!(s, ai, CancelOrders(); t=Buy)
+    call!(s, ai, CancelOrders(); t=Buy)
     p = @something inst.position(ai) inst.position(ai, Short())
     price = closeat(ai.ohlcv, ats)
     ok = false
@@ -183,17 +183,17 @@ function sell!(s, ai, ats, ts; lev)
         update_leverage!(s, ai, order_p, ats)
         ot, otsym = select_ordertype(s, Sell, order_p)
         kwargs = select_orderkwargs(otsym, Sell, ai, ats)
-        t = pong!(s, ai, ot; amount, date=ts, kwargs...)
+        t = call!(s, ai, ot; amount, date=ts, kwargs...)
         if !isnothing(t) && order_p == Long()
             ot, otsym = select_ordertype(s, Sell, Short())
             kwargs = select_orderkwargs(otsym, Sell, ai, ats)
-            t = pong!(s, ai, ot; amount, date=ts, kwargs...)
+            t = call!(s, ai, ot; amount, date=ts, kwargs...)
         end
     end
 end
 
 ## Optimization
-function ping!(s::S, ::OptSetup)
+function call!(s::S, ::OptSetup)
     # s.attrs[:opt_weighted_fitness] = weightsfunc
     _initparams!(s)
     (;
@@ -203,7 +203,7 @@ function ping!(s::S, ::OptSetup)
     )
 end
 
-function ping!(s::S, params, ::OptRun)
+function call!(s::S, params, ::OptRun)
     s.attrs[:overrides] = (;
         (; ((p => getparam(s, params, p)) for p in keys(attr(s, :params_index)))...)...
     )
@@ -211,7 +211,7 @@ function ping!(s::S, params, ::OptRun)
     _reset_pos!(s)
 end
 
-function ping!(s::S, ::OptScore)
+function call!(s::S, ::OptScore)
     [values(mt.multi(s, :drawdown; normalize=true))...]
     # [values(mt.multi(s, :sortino, :sharpe; normalize=true))...]
 end

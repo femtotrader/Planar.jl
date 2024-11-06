@@ -128,13 +128,13 @@ end
 $(TYPEDSIGNATURES)
 
 This function loads a strategy with default settings.
-It invokes the `ping!` function of the module with the strategy type and `StrategyMarkets()`.
+It invokes the `call!` function of the module with the strategy type and `StrategyMarkets()`.
 It then creates a new `Strategy` instance with the module, assets, and configuration.
 The `sandbox` property is set based on the mode of the configuration.
 Finally, it performs checks on the loaded strategy.
 """
 function default_load(mod::Module, t::Type, config::Config)
-    assets = invokelatest(mod.ping!, t, StrategyMarkets())
+    assets = invokelatest(mod.call!, t, StrategyMarkets())
     if config.mode == Paper()
         config.sandbox = true
     end
@@ -147,13 +147,13 @@ end
 $(TYPEDSIGNATURES)
 
 This function loads a strategy without default settings.
-It invokes the `ping!` function of the module with the strategy type and `StrategyMarkets()`.
+It invokes the `call!` function of the module with the strategy type and `StrategyMarkets()`.
 It then creates a new `Strategy` instance with the module, assets, and configuration.
 The `sandbox` property is set based on the mode of the configuration.
 Finally, it performs checks on the loaded strategy.
 """
 function bare_load(mod::Module, t::Type, config::Config)
-    syms = invokelatest(mod.ping!, t, StrategyMarkets())
+    syms = invokelatest(mod.call!, t, StrategyMarkets())
     exc = Exchanges.getexchange!(config.exchange; sandbox=true, config.account)
     uni = AssetCollection(syms; load_data=false, timeframe=mod.TF, exc, config.margin)
     s = Strategy(mod, config.mode, config.margin, mod.TF, exc, uni; config)
@@ -303,7 +303,7 @@ function strategy!(mod::Module, cfg::Config)
         end
     end
     @assert nameof(s_type) isa Symbol "Source $src does not define a strategy name."
-    s = @something invokelatest(mod.ping!, s_type, cfg, LoadStrategy()) try
+    s = @something invokelatest(mod.call!, s_type, cfg, LoadStrategy()) try
         default_load(mod, s_type, cfg)
     catch
         @debug_backtrace

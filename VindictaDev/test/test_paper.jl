@@ -28,7 +28,7 @@ function test_paper_margin(s)
     this_p = lastprice(ai)
     prevcash = s.cash.value
     @info "paper: market order buy" prevcash this_p
-    t = ect.pong!(
+    t = ect.call!(
         s, ai, ot.MarketOrder{ot.Buy}; amount=0.02, price=this_p + this_p / 50.0, date
     )
     @test t isa ot.LongTrade
@@ -52,7 +52,7 @@ function test_paper_margin(s)
     date += Minute(1)
     prevcash = s.cash.value
     @info "TEST: paper market sell" prevcash cash(ai)
-    t = ect.pong!(s, ai, ot.MarketOrder{ot.Sell}; amount=0.011, date)
+    t = ect.call!(s, ai, ot.MarketOrder{ot.Sell}; amount=0.011, date)
     @test t isa ot.LongTrade
     @test t isa ot.SellTrade
     @test cash(pos) ≈ 0.02 + t.amount
@@ -62,7 +62,7 @@ function test_paper_margin(s)
     lpr = lastprice(ai)
     ai_pnl = inst.pnl(ai, Long(), lpr)
     ai_margin = inst.margin(ai, Long()) + inst.additional(ai, Long())
-    ect.pong!(s, ai, Long(), now(), ect.PositionClose())
+    ect.call!(s, ai, Long(), now(), ect.PositionClose())
     @test ai_margin <= 1e8
     @test iszero(ai)
     @test !isopen(pos)
@@ -72,10 +72,10 @@ function test_paper_margin(s)
     @test s.cash - prev_cash ≈ ai_margin + ai_pnl rtol = 1e1
     trade = last(ai.history)
     @test trade.value >= s.cash - prev_cash || trade.price < lpr
-    @test ect.pong!(s, ai, 1.2, ect.UpdateLeverage(); pos=Long())
+    @test ect.call!(s, ai, 1.2, ect.UpdateLeverage(); pos=Long())
     @test inst.leverage(pos) == 1.2
     this_p = lastprice(ai)
-    t = ect.pong!(
+    t = ect.call!(
         s, ai, ot.GTCOrder{ot.Buy}; amount=0.02, price=this_p - this_p / 2.0, date
     )
     @test ect.orderscount(s, ai) == length(s[:paper_order_tasks])
@@ -86,7 +86,7 @@ function test_paper_margin(s)
     prev_taken = taken_vol[]
     up_price = this_p + this_p / 2.0
     @info "TEST: up price" up_price date
-    t = ect.pong!(
+    t = ect.call!(
         s, ai, ot.GTCOrder{ot.Buy}; amount=total_vol[] / 100.0, price=up_price, date
     )
     @test t isa ot.Trade || ismissing(t)
@@ -114,7 +114,7 @@ function test_paper_margin(s)
     prev_count = ect.orderscount(s, ai)
     @test prev_count == 1
     ect.cash!(s.cash, this_p * total_vol[])
-    t = ect.pong!(
+    t = ect.call!(
         s,
         ai,
         ot.GTCOrder{ot.Buy};
@@ -132,16 +132,16 @@ function test_paper_margin(s)
     end
     @test ect.orderscount(s, ai) - 1 == prev_count || ect.isfilled(ai, o)
     @test ect.orderscount(s, ai) == length(s[:paper_order_tasks])
-    @test !ect.pong!(s, ai, 1.0, ect.UpdateLeverage(); pos=Long())
-    ect.pong!(s, ai, ect.CancelOrders())
+    @test !ect.call!(s, ai, 1.0, ect.UpdateLeverage(); pos=Long())
+    ect.call!(s, ai, ect.CancelOrders())
     @test ect.orderscount(s, ai) == 0 == length(s[:paper_order_tasks])
-    @test !ect.pong!(s, ai, 1.1, ect.UpdateLeverage(); pos=Long())
-    @test ect.pong!(s, ai, 1.1, ect.UpdateLeverage(); pos=Short())
+    @test !ect.call!(s, ai, 1.1, ect.UpdateLeverage(); pos=Long())
+    @test ect.call!(s, ai, 1.1, ect.UpdateLeverage(); pos=Short())
     @test inst.leverage(ai, Short()) == 1.1
     date += Millisecond(1)
-    t = ect.pong!(s, ai, ot.FOKOrder{ot.Buy}; amount=total_vol[], date)
+    t = ect.call!(s, ai, ot.FOKOrder{ot.Buy}; amount=total_vol[], date)
     @test isnothing(t)
-    t = ect.pong!(
+    t = ect.call!(
         s,
         ai,
         ot.IOCOrder{ot.Buy};
@@ -159,23 +159,23 @@ function test_paper_nomargin_market(s)
     ai = s[m"eth"]
     date = now()
     prev_cash = s.cash.value
-    t = ect.pong!(s, ai, ot.MarketOrder{ot.Buy}; amount=0.02, date)
+    t = ect.call!(s, ai, ot.MarketOrder{ot.Buy}; amount=0.02, date)
     @test t isa ot.Trade
     @test t.amount ≈ 0.02 atol = 1e-1
     @test s.cash + abs(t.size) ≈ prev_cash atol = 1e-1
     @test iszero(s.cash_committed)
     @test cash(ai) ≈ 0.02
-    t = ect.pong!(s, ai, ot.MarketOrder{ot.Sell}; amount=0.021, date)
+    t = ect.call!(s, ai, ot.MarketOrder{ot.Sell}; amount=0.021, date)
     @test isnothing(t)
-    t = ect.pong!(s, ai, ot.MarketOrder{ot.Sell}; amount=0.01, date)
+    t = ect.call!(s, ai, ot.MarketOrder{ot.Sell}; amount=0.01, date)
     @test t isa ot.Trade
     @test t.amount ≈ 0.01 atol = 1e-1
     @test ai.cash ≈ 0.01
-    t = ect.pong!(s, ai, ot.MarketOrder{ot.Sell}; amount=0.03, date)
+    t = ect.call!(s, ai, ot.MarketOrder{ot.Sell}; amount=0.03, date)
     @test isnothing(t)
     @test ai.cash ≈ 0.01
     date = now()
-    t = ect.pong!(s, ai, ot.MarketOrder{ot.Sell}; amount=ai.cash.value, date)
+    t = ect.call!(s, ai, ot.MarketOrder{ot.Sell}; amount=ai.cash.value, date)
     @test t isa ot.Trade
     @test t.date == date
     @test iszero(ai.cash)
@@ -189,8 +189,8 @@ function test_paper_nomargin_gtc(s)
     ai = s[m"eth"]
     date = now()
     prev_cash = s.cash.value
-    @info "TEST: paper pong buy (last price)"
-    ect.pong!(s, ai, ot.GTCOrder{ot.Buy}; amount=0.02, date)
+    @info "TEST: paper call buy (last price)"
+    ect.call!(s, ai, ot.GTCOrder{ot.Buy}; amount=0.02, date)
     @test length(collect(ect.orders(s, ai))) == 1 || length(ai.history) > 0
     o = if length(ai.history) > 0
         last(ai.history).order
@@ -208,8 +208,8 @@ function test_paper_nomargin_gtc(s)
     date = now()
     prev_cash = s.cash.value
     this_p = lastprice(ai)
-    @info "TEST: paper pong sell"
-    t = ect.pong!(
+    @info "TEST: paper call sell"
+    t = ect.call!(
         s, ai, ot.GTCOrder{ot.Sell}; amount=0.01, price=this_p - this_p / 100.0, date
     )
     if haskey(st.attr(s, :paper_order_tasks), o)
@@ -222,8 +222,8 @@ function test_paper_nomargin_gtc(s)
     @test !ect.iszero(cash(ai, Long())) && cash(ai, Long()) < 0.02
 
     _, taken_vol, total_vol = pm._paper_liquidity(s, ai)
-    @info "TEST: paper pong buy 2 (price below)"
-    t = ect.pong!(
+    @info "TEST: paper call buy 2 (price below)"
+    t = ect.call!(
         s,
         ai,
         ot.GTCOrder{ot.Buy};
@@ -256,12 +256,12 @@ function test_paper_nomargin_gtc(s)
     price = this_p * 2.0
     date += Millisecond(1)
     this_vol = 0.0
-    @info "TEST: paper pong buy loop" amount price
+    @info "TEST: paper call buy loop" amount price
     local t = nothing
     while taken_vol[] + amount < total_vol[] * 0.9
-        t = ect.pong!(s, ai, ot.GTCOrder{ot.Buy}; amount, price, date)
+        t = ect.call!(s, ai, ot.GTCOrder{ot.Buy}; amount, price, date)
         if t isa ot.Trade
-            @info "TEST: paper pong " taken_vol[] total_vol[]
+            @info "TEST: paper call " taken_vol[] total_vol[]
             this_vol += t.amount
         else
             break
@@ -270,8 +270,8 @@ function test_paper_nomargin_gtc(s)
         yield()
     end
     n_orders = ect.orderscount(s, ai)
-    @info "TEST: paper pong buy 3"
-    t = ect.pong!(
+    @info "TEST: paper call buy 3"
+    t = ect.call!(
         s, ai, ot.GTCOrder{ot.Buy}; amount=total_vol[] / 100.0, price=this_p, date
     )
     if !isnothing(t)
@@ -291,7 +291,7 @@ function test_paper_nomargin_ioc(s)
     date = now()
     prev_cash = s.cash.value
     this_p = lastprice(ai)
-    t = ect.pong!(
+    t = ect.call!(
         s, ai, ot.IOCOrder{ot.Buy}; amount=0.01, price=this_p + this_p / 100.0, date
     )
     _, _, total_vol = st.attr(s, :paper_liquidity)[ai]
@@ -307,7 +307,7 @@ function test_paper_nomargin_ioc(s)
         ),
     )
     price = min(ai.limits.cost.max, this_p + this_p / 100.0)
-    t = ect.pong!(s, ai_unlimited, ot.IOCOrder{ot.Buy}; amount=price / 2.0, price, date)
+    t = ect.call!(s, ai_unlimited, ot.IOCOrder{ot.Buy}; amount=price / 2.0, price, date)
     @test t isa ot.Trade
     @test ot.isimmediate(t.order)
     o = t.order
@@ -326,7 +326,7 @@ function test_paper_nomargin_fok(s)
     date = now()
     prev_cash = s.cash.value
     this_p = lastprice(ai)
-    t = ect.pong!(
+    t = ect.call!(
         s, ai, ot.FOKOrder{ot.Buy}; amount=0.01, price=this_p + this_p / 50.0, date
     )
     @test ot.isimmediate(t.order)
@@ -335,7 +335,7 @@ function test_paper_nomargin_fok(s)
     @test s.cash < prev_cash
     prev_cash = s.cash.value
     sell_price = this_p - this_p / 50.0
-    t = ect.pong!(
+    t = ect.call!(
         s, ai, ot.FOKOrder{ot.Sell}; amount=cash(ai).value, price=sell_price, date
     )
     @test ot.isimmediate(t.order)
@@ -352,7 +352,7 @@ function test_paper_nomargin_fok(s)
         ),
     )
     n_trades = length(ai_unlimited.history)
-    t = ect.pong!(
+    t = ect.call!(
         s,
         ai_unlimited,
         ot.FOKOrder{ot.Buy};

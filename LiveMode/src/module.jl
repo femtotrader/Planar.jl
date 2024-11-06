@@ -5,7 +5,7 @@ using .Executors.Instances: Instances, Exchanges, Data, MarginInstance, NoMargin
 using .Instances
 using .Exchanges
 using .Exchanges: Python, gettimeout, resptobool
-using .st: Strategy, MarginStrategy, NoMarginStrategy, LiveStrategy, ping!, RTStrategy, throttle, ExchangeAsset, universe
+using .st: Strategy, MarginStrategy, NoMarginStrategy, LiveStrategy, call!, RTStrategy, throttle, ExchangeAsset, universe
 using PaperMode.OrderTypes
 using PaperMode.Misc
 using .Misc: Lang, LittleDict
@@ -13,7 +13,7 @@ using .Misc.TimeTicks
 using .Lang: @deassert, @caller, @ifdebug, @debug_backtrace, withoutkws, isowned, isownable
 using Base: with_logger
 using .Executors.Instruments: cnum
-import .Executors: pong!
+import .Executors: call!
 import .Misc: start!, stop!
 using .Misc.DocStringExtensions
 using .Python: pyfetch_timeout, pygetattr, pyisjl, pyjlvalue
@@ -37,13 +37,13 @@ include("orders/fetch.jl")
 include("orders/cancel.jl")
 include("orders/limit.jl")
 include("orders/market.jl")
-include("orders/pong.jl")
+include("orders/call.jl")
 include("positions/utils.jl")
 include("positions/state.jl")
 include("positions/active.jl")
 include("positions/sync.jl")
 include("positions/pnl.jl")
-include("positions/pong.jl")
+include("positions/call.jl")
 include("instances.jl")
 include("balance/utils.jl")
 include("balance/fetch.jl")
@@ -52,7 +52,7 @@ include("trades.jl")
 include("sync.jl")
 include("wait.jl")
 include("handler.jl")
-include("pong.jl")
+include("call.jl")
 
 include("adhoc/utils.jl")
 include("adhoc/balance.jl")

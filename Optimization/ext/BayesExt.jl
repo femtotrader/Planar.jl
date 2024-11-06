@@ -2,7 +2,7 @@ module BayesExt
 using Optimization
 using Optimization:
     running!,
-    stopping!,
+    stopcall!,
     isrunning,
     lowerupper,
     define_backtest_func,
@@ -10,7 +10,7 @@ using Optimization:
     ctxsteps,
     objectives,
     SimMode
-using .SimMode: start!, SimMode as sm, ping!
+using .SimMode: start!, SimMode as sm, call!
 using .SimMode.Executors: st, Instances, OptSetup, OptRun, OptScore, Context
 using .SimMode.Misc.Lang: @preset, @precomp
 using .SimMode.TimeTicks
@@ -77,7 +77,7 @@ function boptimize!(
 )
     Random.seed!(seed)
     running!()
-    ctx, params, space = ping!(s, OptSetup())
+    ctx, params, space = call!(s, OptSetup())
     sess = OptSession(s; ctx, params, attrs=Dict(pairs((; seed, splits, space))))
 
     ndims = max(1, length(params))
@@ -111,11 +111,11 @@ function boptimize!(
         )
         res = boptimize!(opt)
     catch e
-        stopping!()
+        stopcall!()
         rethrow(e)
         display(e)
     end
-    stopping!()
+    stopcall!()
     (sess, (; opt, res))
 end
 

@@ -33,7 +33,7 @@ using .Misc.Lang: Lang, @preset, @precomp, @m_str, @ignore
     end
     ot = OrderTypes
     start!(s)
-    SimMode.@compile_pong
+    SimMode.@compile_call
     st.Instances.Exchanges.emptycaches!()
     stop!(s)
     st.Instances.Exchanges.ExchangeTypes._closeall()

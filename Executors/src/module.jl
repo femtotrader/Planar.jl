@@ -6,7 +6,7 @@ using Strategies.Misc
 using .Misc.TimeTicks
 using .Misc: Lang
 using .Misc.DocStringExtensions
-import .Misc: ping!, pong!
+import .Misc: call!, call!
 
 include("context.jl")
 include("checks.jl")
@@ -52,7 +52,7 @@ struct OptRun <: ExecAction end
 @doc "Action to get the score of a single simulation (after it has finished)."
 struct OptScore <: ExecAction end
 
-export pong!, UpdateOrders, UpdateOrdersShuffled, CancelOrders
+export call!, UpdateOrders, UpdateOrdersShuffled, CancelOrders
 export UpdateLeverage, UpdateMargin, UpdatePositions
 export OptSetup, OptRun, OptScore
 export NewTrade

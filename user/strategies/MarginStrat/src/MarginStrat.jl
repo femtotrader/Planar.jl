@@ -13,7 +13,7 @@ const TF = tf"1d"
 # using .Indicators
 using Indicators: rsi, ema
 
-ping!(_::SC, ::WarmupPeriod) = Day(27 * 2)
+call!(_::SC, ::WarmupPeriod) = Day(27 * 2)
 
 function qqe(close)
     rsi(close; n=14) |>
@@ -31,14 +31,14 @@ function qqe!(ohlcv, from_date)
     [qqe(ohlcv.close);;] # it's a matrix
 end
 
-function ping!(s::SC{<:ExchangeID,Sim}, ::ResetStrategy)
-    pong!(qqe!, s, InitData(); cols=(:qqe,), timeframe=tf"1d")
+function call!(s::SC{<:ExchangeID,Sim}, ::ResetStrategy)
+    call!(qqe!, s, InitData(); cols=(:qqe,), timeframe=tf"1d")
     @assert hasproperty(ohlcv(first(s.universe), tf"1d"), :qqe)
 end
 
 function handler(s, ai, ats, date)
     # Calculate QQE indicator
-    pong!(qqe!, s, ai, UpdateData(); cols=(:qqe,))
+    call!(qqe!, s, ai, UpdateData(); cols=(:qqe,))
 
     data = ohlcv(ai, tf"1d")
     # Get trend direction
@@ -72,14 +72,14 @@ function handler(s, ai, ats, date)
 
         if exposure < 0.0
             # close long position
-            pong!(s, ai, Short(), date, PositionClose())
+            call!(s, ai, Short(), date, PositionClose())
         end
 
         # This check is not necessary, since the bot
-        # validates the inputs. Calling pong! with an amount too low
+        # validates the inputs. Calling call! with an amount too low
         # would make the call return `nothing`.
         if amount * price > ai.limits.cost.min
-            pong!(s, ai, MarketOrder{Buy}; amount=amount, date)
+            call!(s, ai, MarketOrder{Buy}; amount=amount, date)
         end
 
     elseif trend < 0.0
@@ -92,24 +92,24 @@ function handler(s, ai, ats, date)
 
         if exposure > 0.0
             # close long position
-            pong!(s, ai, Long(), date, PositionClose())
+            call!(s, ai, Long(), date, PositionClose())
         end
 
         if amount * price < -ai.limits.cost.min
             # Submit sell order
-            pong!(s, ai, ShortMarketOrder{Sell}; amount, date)
+            call!(s, ai, ShortMarketOrder{Sell}; amount, date)
         end
     end
 end
 
-function ping!(s::SC, ts::DateTime, ctx)
+function call!(s::SC, ts::DateTime, ctx)
     ats = available(s.timeframe, ts)
     foreach(s.universe) do ai
         handler(s, ai, ats, ts)
     end
 end
 
-function ping!(::Type{<:Union{SC,S}}, ::StrategyMarkets)
+function call!(::Type{<:Union{SC,S}}, ::StrategyMarkets)
     ["BTC/USDT:USDT"]
 end
 

@@ -40,7 +40,7 @@ function start!(
         end
     end
     if resetctx
-        tt.current!(ctx.range, ctx.range.start + ping!(s, WarmupPeriod()))
+        tt.current!(ctx.range, ctx.range.start + call!(s, WarmupPeriod()))
     end
     if doreset
         st.reset!(s)
@@ -58,7 +58,7 @@ function start!(
                 break
             end
             update!(s, date, update_mode)
-            ping!(s, date, ctx)
+            call!(s, date, ctx)
             @debug "sim: iter" s.cash ltxzero(s.cash) isempty(s.holdings) orderscount(s)
         end
     end

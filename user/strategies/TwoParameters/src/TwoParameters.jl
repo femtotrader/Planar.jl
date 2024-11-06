@@ -11,7 +11,7 @@ SignalD = Dict{inst.AssetInstance,Union{Type{Buy},Type{Sell},Nothing}}
 
 function indicators!(s, args...; timeframe=TF)
     for (n, func) in s[:params]
-        pong!(
+        call!(
             (args...) -> func(args...; n),
             s,
             args...;
@@ -20,15 +20,15 @@ function indicators!(s, args...; timeframe=TF)
         )
     end
 end
-function ping!(s::SC, ::ResetStrategy)
+function call!(s::SC, ::ResetStrategy)
     s[:signals] = SignalD()
     s[:params] = ((20, ind_ema), (40, ind_ema), (14, ind_rsi))
     indicators!(s, InitData())
 end
-function ping!(_::SC, ::WarmupPeriod)
+function call!(_::SC, ::WarmupPeriod)
     Hour(80)
 end
-function ping!(s::SC, ts::DateTime, _)
+function call!(s::SC, ts::DateTime, _)
     ats = available(s.timeframe, ts)
     signals = s[:signals]
     foreach(s.universe) do ai
@@ -45,13 +45,13 @@ function ping!(s::SC, ts::DateTime, _)
     closed = isdust(eth, price)
     if action == Buy && closed
         amount = freecash(s) / price - maxfees(eth)
-        pong!(s, eth, MarketOrder{Buy}; date=ts, amount)
+        call!(s, eth, MarketOrder{Buy}; date=ts, amount)
     elseif action == Sell && !closed
-        pong!(s, eth, CancelOrders())
-        pong!(s, eth, MarketOrder{Sell}; date=ts, amount=float(eth))
+        call!(s, eth, CancelOrders())
+        call!(s, eth, MarketOrder{Sell}; date=ts, amount=float(eth))
     end
 end
-function ping!(::Type{<:SC}, ::StrategyMarkets)
+function call!(::Type{<:SC}, ::StrategyMarkets)
     String["BTC/USDT", "ETH/USDT"]
 end
 

@@ -11,7 +11,7 @@ The function creates a paper market order for a given strategy and asset.
 It specifies the amount of the order and the type of order (e.g., limit order, immediate order).
 
 """
-function pong!(
+function call!(
     s::NoMarginStrategy{Paper},
     ai,
     t::Type{<:AnyMarketOrder};
@@ -35,7 +35,7 @@ It specifies the amount of the order and the date.
 Additional keyword arguments can be passed.
 
 """
-function pong!(
+function call!(
     s::NoMarginStrategy{Paper},
     ai,
     t::Type{<:Order{<:LimitOrderType}};

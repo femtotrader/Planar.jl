@@ -37,7 +37,7 @@ function _sync_oppos!(s, ai, pside, update, forced_side; waitfor)
                 ) f = @caller
             end
             if forced_side
-                pong!(s, ai, oppside, now(), PositionClose(); amount=oppos_amount, waitfor)
+                call!(s, ai, oppside, now(), PositionClose(); amount=oppos_amount, waitfor)
                 oppos = position(ai, oppside)
                 if isopen(oppos)
                     @warn "sync pos: refusing sync since opposite side is still open" ai pside amount oppside oppos_amount

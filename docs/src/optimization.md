@@ -4,16 +4,16 @@ Vindicta provides tools to optimize strategy parameters. Optimzations are manage
 Optimization sessions can be periodically saved, and therefore can be reloaded at a later time to explore previous results or continue the optimization from where it left off.
 
 There are currently 3 different optimization methods: [`Optimization.gridsearch`](@ref), [`Optimization.bboptimize`](@ref), `boptimize!`(when using `BayesianOptimization`).
-Configuration is done by defining three `ping!` functions.
+Configuration is done by defining three `call!` functions.
 
-- `ping!(::S, ::OptSetup)`: returns a named tuples with:
+- `call!(::S, ::OptSetup)`: returns a named tuples with:
    - `ctx`: a `Executors.Context` which is the period of time used for backtesting
    - `params`: a named tuple of all the parameters to be optimizied. Values should be in the form of iterables.
    - `space`: only required for `bboptimize`, a named tuple where
      - `kind`: is the type of space (from `BlackBoxOptim` package)
      - `precision`: If the space is `:MixedPrecisionRectSearchSpace` it is a vector where each element is the number of decimals to consider in parameters of type float.
-- `ping!(::S, ::OptRun)`: called before a single backtest is run. Receives one combination of the parameters. Should apply the parameters to the strategy. No return values expected.
-- `ping!(::S, ::OptScore)::Vector`: for `bboptimize` and `boptimize!` it is the objective score that advances the optimization. In grid search it can be used to store additional metrics in the results dataframe. Within the `Stats` package there are metrics like `sharpe`` or `sortino` commonly used as optimization objectives.
+- `call!(::S, ::OptRun)`: called before a single backtest is run. Receives one combination of the parameters. Should apply the parameters to the strategy. No return values expected.
+- `call!(::S, ::OptScore)::Vector`: for `bboptimize` and `boptimize!` it is the objective score that advances the optimization. In grid search it can be used to store additional metrics in the results dataframe. Within the `Stats` package there are metrics like `sharpe`` or `sortino` commonly used as optimization objectives.
 
 ### Grid search
 This is the recommended approach, useful if the strategy has a small set of parameters (<5).

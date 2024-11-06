@@ -33,7 +33,7 @@ $(TYPEDSIGNATURES)
 This function iterates over each order in `ai_orders` and checks if it is already queued in the simulation `s`.
 If not, it calls the `order!` function to add the order to the simulation at the specified `date`.
 """
-_dopong!(s, ai, ai_orders, date) =
+_docall!(s, ai, ai_orders, date) =
     for o in collect(ai_orders)
         isqueued(o, s, ai) || continue
         order!(s, o, date, ai)
@@ -43,12 +43,12 @@ _dopong!(s, ai, ai_orders, date) =
 
 $(TYPEDSIGNATURES)
 
-This function iterates over each order in `all_orders` and calls `_dopong!` to add the order to the simulation `s` at the specified `date`.
+This function iterates over each order in `all_orders` and calls `_docall!` to add the order to the simulation `s` at the specified `date`.
 
 """
 _doall!(s, all_orders, date) =
     for (ai, ords) in all_orders
-        _dopong!(s, ai, ords, date)
+        _docall!(s, ai, ords, date)
     end
 
 @doc """Iterates over all pending orders checking for new fills. 
@@ -104,7 +104,7 @@ end
 
 $(TYPEDSIGNATURES)
 
-Should be called only once, precisely at the beginning of the main `ping!` function.
+Should be called only once, precisely at the beginning of the main `call!` function.
 Orders are evaluated sequentially, first sell orders than buy orders.
 
 For a randomized evaluation sequence use `UpdateOrdersShuffled` by setting

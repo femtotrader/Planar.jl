@@ -10,14 +10,14 @@ const TF = tf"1m"
 
 include("common.jl")
 
-ping!(s::SC, ::ResetStrategy) = begin
+call!(s::SC, ::ResetStrategy) = begin
     skip_watcher = attr(s, :skip_watcher, false)
     _reset!(s)
     _initparams!(s)
     _overrides!(s)
     skip_watcher || _tickers_watcher(s)
 end
-function ping!(t::Type{<:SC}, config, ::LoadStrategy)
+function call!(t::Type{<:SC}, config, ::LoadStrategy)
     s = st.default_load(@__MODULE__, t, config)
     if s isa Union{PaperStrategy,LiveStrategy} && !(attr(s, :skip_watcher, false))
         _tickers_watcher(s)
@@ -25,7 +25,7 @@ function ping!(t::Type{<:SC}, config, ::LoadStrategy)
     s
 end
 
-ping!(_::SC, ::WarmupPeriod) = Day(1)
+call!(_::SC, ::WarmupPeriod) = Day(1)
 
 _initparams!(s) = begin
     params_index = st.attr(s, :params_index)
@@ -35,7 +35,7 @@ _initparams!(s) = begin
     params_index[:leverage] = 3
 end
 
-function ping!(s::T, ts::DateTime, _) where {T<:SC}
+function call!(s::T, ts::DateTime, _) where {T<:SC}
     ats = available(_timeframe(s), ts)
     makeorders(ai) = begin
         if issell(s, ai, ats)
@@ -47,33 +47,33 @@ function ping!(s::T, ts::DateTime, _) where {T<:SC}
     foreach(makeorders, s.universe.data.instance)
 end
 
-function ping!(::Type{<:SC}, ::StrategyMarkets)
+function call!(::Type{<:SC}, ::StrategyMarkets)
     ["ETH/USDT", "BTC/USDT", "SOL/USDT"]
 end
 
-function ping!(::SC{ExchangeID{:bybit}}, ::StrategyMarkets)
+function call!(::SC{ExchangeID{:bybit}}, ::StrategyMarkets)
     ["ETH/USDT", "BTC/USDT", "ATOM/USDT"]
 end
 
 function buy!(s, ai, ats, ts)
-    pong!(s, ai, CancelOrders(); t=Sell)
+    call!(s, ai, CancelOrders(); t=Sell)
     @deassert ai.asset.qc == nameof(s.cash)
     price = closeat(ai.ohlcv, ats)
     amount = st.freecash(s) / 10.0 / price
     if amount > 0.0
         ot, otsym = select_ordertype(s, Buy)
         kwargs = select_orderkwargs(otsym, Buy, ai, ats)
-        t = pong!(s, ai, ot; amount, date=ts, kwargs...)
+        t = call!(s, ai, ot; amount, date=ts, kwargs...)
     end
 end
 
 function sell!(s, ai, ats, ts)
-    pong!(s, ai, CancelOrders(); t=Buy)
+    call!(s, ai, CancelOrders(); t=Buy)
     amount = max(inv(closeat(ai, ats)), inst.freecash(ai))
     if amount > 0.0
         ot, otsym = select_ordertype(s, Sell)
         kwargs = select_orderkwargs(otsym, Sell, ai, ats)
-        t = pong!(s, ai, ot; amount, date=ts, kwargs...)
+        t = call!(s, ai, ot; amount, date=ts, kwargs...)
     end
 end
 
@@ -98,7 +98,7 @@ function issell(s, ai, ats)
 end
 
 ## Optimization
-function ping!(s::SC, ::OptSetup)
+function call!(s::SC, ::OptSetup)
     # s.attrs[:opt_weighted_fitness] = weightsfunc
     (;
         ctx=Context(Sim(), tf"1h", dt"2020-", dt"2023-"),
@@ -106,7 +106,7 @@ function ping!(s::SC, ::OptSetup)
         space=(kind=:MixedPrecisionRectSearchSpace, precision=[3, 3]),
     )
 end
-function ping!(s::SC, params, ::OptRun)
+function call!(s::SC, params, ::OptRun)
     s.attrs[:overrides] = (;
         timeframe=tf"1h",
         ordertype=:market,
@@ -117,13 +117,13 @@ function ping!(s::SC, params, ::OptRun)
     _overrides!(s)
 end
 
-function ping!(s::SC, ::OptScore)
+function call!(s::SC, ::OptScore)
     [values(mt.multi(s, :sortino; normalize=true))...]
     # [values(mt.multi(s, :sortino, :sharpe; normalize=true))...]
 end
 weightsfunc(weights) = weights[1] * 0.8 + weights[2] * 0.2
 
-function ping!(::Type{<:SC}, ::StrategyMarkets)
+function call!(::Type{<:SC}, ::StrategyMarkets)
     ["BTC/USDT", "ETH/USDT", "SOL/USDT"]
 end
 

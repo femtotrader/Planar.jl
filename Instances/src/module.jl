@@ -968,7 +968,7 @@ This function opens or closes the status of a non-hedged position in a `MarginIn
 function status!(ai::MarginInstance, p::PositionSide, pstat::PositionStatus)
     pos = position(ai, p)
     opp = opposite(ai, p)
-    # HACK: the `!iszero` check is needed because in SimMode the `NewTrade` ping! in `_update_from_trade!` can trigger aditional trades
+    # HACK: the `!iszero` check is needed because in SimMode the `NewTrade` call! in `_update_from_trade!` can trigger aditional trades
     if pstat == PositionOpen() && status(opp) == PositionOpen() && !iszero(cash(opp))
         @error "double position in non hedged mode" ai.longpos ai.shortpos
         error()

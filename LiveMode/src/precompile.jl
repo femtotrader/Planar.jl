@@ -42,14 +42,14 @@ using .Misc.Lang: Lang, @preset, @precomp, @m_str, @ignore
         end
         # ENV["JULIA_DEBUG"]="PaperMode,LogTasks,LogBalance,LogWait,LogWatchBalance,LogEvents"
         ot = OrderTypes
-        @info "PRECOMP: live mode pong" exchange margin islocked(s)
+        @info "PRECOMP: live mode call" exchange margin islocked(s)
         try
             start!(s)
         catch e
             @error "PRECOMP: strategy start failed" exception = e
         end
-        @info "PRECOMP: compile pong" exchange margin
-        SimMode.@compile_pong
+        @info "PRECOMP: compile call" exchange margin
+        SimMode.@compile_call
         try
             @info "PRECOMP: start sleep" exchange margin
             start!(s)

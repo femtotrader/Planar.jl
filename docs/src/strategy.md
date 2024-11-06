@@ -76,7 +76,7 @@ s = strategy(:Example, cfg) # Load the Example strategy
 
 The key is the name of the module (in this case `Example`) which will be imported from the included file "cfg/strategies/Example.jl" or "cfg/strategies/Example/src/Example.jl".
 
-After the strategy module is imported the strategy is instantiated by calling the `ping!(::Type{S}, ::LoadStrategy, cfg)` function.
+After the strategy module is imported the strategy is instantiated by calling the `call!(::Type{S}, ::LoadStrategy, cfg)` function.
 
 ```julia
 > typeof(s)
@@ -96,7 +96,7 @@ const TF = tf"1m"
 
 @strategyenv!
 
-function ping!(::Type{<:SC}, ::LoadStrategy, config)
+function call!(::Type{<:SC}, ::LoadStrategy, config)
     assets = marketsid(S)
     s = Strategy(Example, assets; config)
     s
@@ -124,13 +124,13 @@ s = Vindicta.Engine.Strategies.strategy(MyDownStreamModule)
 
 
 ## Strategy interface
-Both `ping!` and `pong!` functions adhere to a convention for function signatures. The first argument is always 
+Both `call!` and `call!` functions adhere to a convention for function signatures. The first argument is always 
 either an instance of the _subject_ or its type, followed by the arguments of the function, with the last *non kw* argument being the _verb_ which describes the purpose of the function. KW arguments are optional and don't have any requirements. We can see below that `Type{S}` is the _subject, `config` is an argument, and `::LoadStrategy` is the _verb_.
 
-## List of strategy ping! functions
+## List of strategy call! functions
 
 ```@docs
-Engine.Strategies.ping!
+Engine.Strategies.call!
 ```
 
 ## Removing a strategy

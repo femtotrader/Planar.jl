@@ -35,7 +35,7 @@ all_tests = [
     :backtest,
     :paper,
     :live,
-    :live_pong,
+    :live_call,
 ]
 
 tests(selected=ARGS) = begin

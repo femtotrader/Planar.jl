@@ -20,22 +20,22 @@ function bbands!(ohlcv, from_date; n=20, sigma=2.0)
     [bb[:, 1] bb[:, 3]]
 end
 
-function ping!(s::SC{<:ExchangeID,Sim}, ::ResetStrategy)
+function call!(s::SC{<:ExchangeID,Sim}, ::ResetStrategy)
     attrs = s.attrs
     n = get(attrs, :param_n, 20)
     sigma = get(attrs, :param_sigma, 2.0)
-    pong!(
+    call!(
         (args...) -> bbands!(args...; n, sigma), s, InitData(); cols=(:bb_lower, :bb_upper)
     )
 end
 
-ping!(_::SC, ::WarmupPeriod) = Day(7)
+call!(_::SC, ::WarmupPeriod) = Day(7)
 
 function handler(s, ai, ats, ts)
     """
     1) Compute indicators from data
     """
-    pong!(bbands!, s, ai, UpdateData(); cols=(:bb_lower, :bb_upper))
+    call!(bbands!, s, ai, UpdateData(); cols=(:bb_lower, :bb_upper))
     ohlcv = ai.data[s.timeframe]
 
     lower = ohlcv[ats, :bb_lower]
@@ -62,10 +62,10 @@ function handler(s, ai, ats, ts)
     if current_price < lower && !has_position
         @linfo "buy signal: creating market order" sym = raw(ai) buy_value current_price
         amount = buy_value / current_price
-        pong!(s, ai, MarketOrder{Buy}; date=ts, amount)
+        call!(s, ai, MarketOrder{Buy}; date=ts, amount)
     elseif current_price > upper && has_position
         @linfo "sell signal: closing position" exposure = value(ai) current_price
-        pong!(s, ai, Long(), ts, PositionClose())
+        call!(s, ai, Long(), ts, PositionClose())
     end
     """
     5) Check strategy profitability
@@ -75,14 +75,14 @@ function handler(s, ai, ats, ts)
     end
 end
 
-function ping!(s::T, ts::DateTime, _) where {T<:SC}
+function call!(s::T, ts::DateTime, _) where {T<:SC}
     ats = available(s.timeframe, ts)
     foreach(s.universe) do ai
         handler(s, ai, ats, ts)
     end
 end
 
-function ping!(t::Type{<:SC}, config, ::LoadStrategy)
+function call!(t::Type{<:SC}, config, ::LoadStrategy)
     assets = marketsid(t)
     sandbox = config.mode == Paper() ? false : config.sandbox
     timeframe = tf"1h"
@@ -101,35 +101,35 @@ function ping!(t::Type{<:SC}, config, ::LoadStrategy)
         # have to add it manually to the strategy.
         # Recommended to just stub the data with a function defined in the REPL
     else
-        pong!(s, WatchOHLCV())
+        call!(s, WatchOHLCV())
     end
     s
 end
 
-function ping!(::Type{<:SC}, ::StrategyMarkets)
+function call!(::Type{<:SC}, ::StrategyMarkets)
     String["BTC/USDT:USDT"]
 end
 
 ## Optimization
 THREADSAFE = Ref(false)
-function ping!(s::SC, ::OptSetup)
+function call!(s::SC, ::OptSetup)
     (;
         ctx=Context(Sim(), tf"1h", dt"2020-", now()),
         params=(n=2:120, sigma=1.5:0.1:2.5),
         space=(kind=:MixedPrecisionRectSearchSpace, precision=Int[0, 1]),
     )
 end
-function ping!(s::SC, params, ::OptRun)
+function call!(s::SC, params, ::OptRun)
     attrs = s.attrs
     attrs[:param_n] = convert(Int, params[1])
     attrs[:param_sigma] = params[2]
     # we have implemented the bbands func in the ResetStrategy func
     # so we have to call that to update `bb_lower` and `bb_upper` according
     # to the new parameters
-    ping!(s, ResetStrategy())
+    call!(s, ResetStrategy())
 end
 
-function ping!(s::SC, ::OptScore)::Vector
+function call!(s::SC, ::OptScore)::Vector
     [mt.sharpe(s)]
 end
 

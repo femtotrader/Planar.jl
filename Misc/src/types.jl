@@ -3,7 +3,7 @@ using .Sandbox: safereval
 import Base: ==
 const td_tf = TimeTicks.td_tf
 
-@doc "An `ExecAction` is any holy trait singleton used to dispatch `ping!` and `pong!` functions."
+@doc "An `ExecAction` is any holy trait singleton used to dispatch `call!` and `call!` functions."
 abstract type ExecAction end
 @doc "ExecMode is one of `Sim`, `Paper`, `Live`."
 abstract type ExecMode end

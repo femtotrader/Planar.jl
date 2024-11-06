@@ -12,13 +12,13 @@ using .Misc.ConcurrentCollections: ConcurrentDict
 using .Misc.TimeToLive: safettl
 using .Misc.LoggingExtras
 using .Misc.Lang: @lget!, @ifdebug, @deassert, Option, @writeerror, @debug_backtrace
-using .Executors.Strategies: MarginStrategy, Strategy, Strategies as st, ping!
+using .Executors.Strategies: MarginStrategy, Strategy, Strategies as st, call!
 using .Executors.Strategies
 using .Instances: MarginInstance
 using .Instances.Exchanges: CcxtTrade
 using .Instances.Data.DataStructures: CircularBuffer
 using SimMode: AnyMarketOrder, AnyLimitOrder
-import .Executors: pong!
+import .Executors: call!
 import .Misc: start!, stop!, isrunning, sleep_pad, LOGGING_GROUPS
 
 @doc "A constant `TradesCache` that is a dictionary mapping `AssetInstance` to a circular buffer of `CcxtTrade`."
@@ -93,7 +93,7 @@ function _doping(s; throttle)
                     prev_cash = s_cash.value
                 end
                 ping_start = now()
-                ping!(s, now(), nothing)
+                call!(s, now(), nothing)
                 sleep_pad(ping_start, throttle)
             catch e
                 e isa InterruptException && begin
@@ -124,7 +124,7 @@ This function starts the execution of a strategy in either foreground or backgro
 function start!(
     s::Strategy{<:Union{Paper,Live}}; throttle=throttle(s), doreset=false, foreground=false, with_stdout=true
 )
-    ping!(s, StartStrategy())
+    call!(s, StartStrategy())
     local startinfo
     s[:stopped] = false
     @debug "start: locking"
@@ -281,7 +281,7 @@ function stop!(s::Strategy{<:Union{Paper,Live}})
             end
         end
     end
-    ping!(s, StopStrategy())
+    call!(s, StopStrategy())
     @info "strategy: stopped" mode = execmode(s) elapsed(s)
 end
 
@@ -322,5 +322,5 @@ include("utils.jl")
 include("orders/utils.jl")
 include("orders/state.jl")
 include("orders/limit.jl")
-include("orders/pong.jl")
-include("positions/pong.jl")
+include("orders/call.jl")
+include("positions/call.jl")

@@ -37,7 +37,7 @@ function open_position!(
     # finalize
     status!(ai, P(), PositionOpen())
     @deassert status(po) == PositionOpen()
-    ping!(s, ai, t, po, PositionOpen())
+    call!(s, ai, t, po, PositionOpen())
 end
 
 @doc """Force exit a position.
@@ -56,7 +56,7 @@ function force_exit_position(s::Strategy, ai, p, date::DateTime; kwargs...)
     amount = abs(nondust(ai, ot, price))
     if amount > 0.0
         prevcash = s.cash.value
-        t = pong!(s, ai, ot; amount, date, price, kwargs...)
+        t = call!(s, ai, ot; amount, date, price, kwargs...)
         @debug "force exit position: " amount price t.price s.cash.value - prevcash t.value
         @deassert let o = t.order
             (
@@ -123,7 +123,7 @@ function liquidate!(
     end
     amount = abs(cash(pos).value)
     price = liqprice(pos)
-    t = pong!(s, ai, LiquidationOrder{liqside(p),typeof(p)}; amount, date, price, fees)
+    t = call!(s, ai, LiquidationOrder{liqside(p),typeof(p)}; amount, date, price, fees)
     isnothing(t) || begin
         @deassert t.order.date == date && 0.0 < abs(t.amount) <= abs(t.order.amount)
     end
@@ -166,7 +166,7 @@ function update_position!(
     # Cash should already be updated from trade construction
     withtrade!(po, t)
     # position is still open
-    ping!(s, ai, t, po, PositionUpdate())
+    call!(s, ai, t, po, PositionUpdate())
 end
 
 @doc """ Updates or opens a position based on a given trade.
@@ -220,7 +220,7 @@ function position!(s::IsolatedStrategy{Sim}, ai, date::DateTime, pos::Position=p
         liquidate!(s, ai, p, date)
     else
         # position is still open
-        ping!(s, ai, date, pos, PositionUpdate())
+        call!(s, ai, date, pos, PositionUpdate())
     end
 end
 

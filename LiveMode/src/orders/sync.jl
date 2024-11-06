@@ -483,7 +483,7 @@ function aftertrade_nocommit!(s, ai, o::AnyLimitOrder, _)
 end
 function aftertrade_nocommit!(s, ai, o::Union{AnyFOKOrder,AnyIOCOrder}, _)
     delete!(s, ai, o)
-    isfilled(ai, o) || ping!(s, o, NotEnoughCash(_cashfrom(s, ai, o)), ai)
+    isfilled(ai, o) || call!(s, o, NotEnoughCash(_cashfrom(s, ai, o)), ai)
 end
 aftertrade_nocommit!(_, _, o::AnyMarketOrder, args...) = nothing
 @doc """ Applies a trade to a strategy without updating cash.

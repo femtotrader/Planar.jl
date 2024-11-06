@@ -7,7 +7,7 @@ The framework provides parametrized types for various elements such as:
 - Orders and Trades
 - Exchanges
 
-Parametrizing strategies enables the implementation of models like the _ping pong_ model, which distinguishes between simulations and live executions. The other parametrized types facilitate the introduction of custom logic and behavior.
+Parametrizing strategies enables the implementation of models which distinguishes between simulations and live executions. The other parametrized types facilitate the introduction of custom logic and behavior.
 
 ### Implementing Custom Order Types
 

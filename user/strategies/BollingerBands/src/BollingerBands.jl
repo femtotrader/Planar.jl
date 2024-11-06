@@ -17,17 +17,17 @@ function bbands!(ohlcv, from_date)
     [bb[:, 1] bb[:, 3]]
 end
 
-function ping!(s::SC{<:ExchangeID,Sim}, ::ResetStrategy)
-    pong!(bbands!, s, InitData(); cols=(:bb_lower, :bb_upper))
+function call!(s::SC{<:ExchangeID,Sim}, ::ResetStrategy)
+    call!(bbands!, s, InitData(); cols=(:bb_lower, :bb_upper))
 end
 
-ping!(_::SC, ::WarmupPeriod) = Day(1)
+call!(_::SC, ::WarmupPeriod) = Day(1)
 
 function handler(s, ai, ats, ts)
     """
     1) Compute indicators from data
     """
-    pong!(bbands!, s, ai, UpdateData(); cols=(:bb_lower, :bb_upper))
+    call!(bbands!, s, ai, UpdateData(); cols=(:bb_lower, :bb_upper))
     ohlcv = ai.data[s.timeframe]
 
     lower = ohlcv[ats, :bb_lower]
@@ -54,10 +54,10 @@ function handler(s, ai, ats, ts)
     if current_price < lower && !has_position
         @linfo "buy signal: creating market order" sym = raw(ai) buy_value current_price
         amount = buy_value / current_price
-        pong!(s, ai, MarketOrder{Buy}; date=ts, amount)
+        call!(s, ai, MarketOrder{Buy}; date=ts, amount)
     elseif current_price > upper && has_position
         @linfo "sell signal: closing position" exposure = value(ai) current_price
-        pong!(s, ai, Long(), ts, PositionClose())
+        call!(s, ai, Long(), ts, PositionClose())
     end
     """
     5) Check strategy profitability
@@ -67,14 +67,14 @@ function handler(s, ai, ats, ts)
     end
 end
 
-function ping!(s::T, ts::DateTime, _) where {T<:SC}
+function call!(s::T, ts::DateTime, _) where {T<:SC}
     ats = available(s.timeframe, ts)
     foreach(s.universe) do ai
         handler(s, ai, ats, ts)
     end
 end
 
-function ping!(t::Type{<:SC}, config, ::LoadStrategy)
+function call!(t::Type{<:SC}, config, ::LoadStrategy)
     assets = marketsid(t)
     sandbox = config.mode == Paper() ? false : config.sandbox
     timeframe = tf"1h"
@@ -93,26 +93,26 @@ function ping!(t::Type{<:SC}, config, ::LoadStrategy)
         # have to add it manually to the strategy.
         # Recommended to just stub the data with a function defined in the REPL
     else
-        pong!(s, WatchOHLCV())
+        call!(s, WatchOHLCV())
     end
     s
 end
 
-function ping!(::Type{<:SC}, ::StrategyMarkets)
+function call!(::Type{<:SC}, ::StrategyMarkets)
     String["BTC/USDT:USDT"]
 end
 
 ## Optimization
-# function ping!(s::S, ::OptSetup)
+# function call!(s::S, ::OptSetup)
 #     (;
 #         ctx=Context(Sim(), tf"15m", dt"2020-", now()),
 #         params=(),
 #         # space=(kind=:MixedPrecisionRectSearchSpace, precision=Int[]),
 #     )
 # end
-# function ping!(s::S, params, ::OptRun) end
+# function call!(s::S, params, ::OptRun) end
 
-# function ping!(s::S, ::OptScore)::Vector
+# function call!(s::S, ::OptScore)::Vector
 #     [mt.sharpe(s)]
 # end
 

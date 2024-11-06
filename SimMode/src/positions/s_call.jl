@@ -1,4 +1,4 @@
-import .Strategies: ping!
+import .Strategies: call!
 
 @doc """
 After a position was updated from a trade.
@@ -8,7 +8,7 @@ $(TYPEDSIGNATURES)
 This function is called after a position is updated due to a trade. It takes in a `MarginStrategy`, `ai`, `trade`, `Position`, and `PositionChange` as arguments. The function does not return any value.
 
 """
-function ping!(::MarginStrategy, ai, trade::Trade, ::Position, ::PositionChange)
+function call!(::MarginStrategy, ai, trade::Trade, ::Position, ::PositionChange)
     nothing
 end
 
@@ -20,6 +20,6 @@ $(TYPEDSIGNATURES)
 This function is called after a position is updated from a candle. It provides the necessary functionality for handling position updates in response to candle data.
 
 """
-function ping!(::MarginStrategy, ai, date::DateTime, ::Position, ::PositionUpdate)
+function call!(::MarginStrategy, ai, date::DateTime, ::Position, ::PositionUpdate)
     nothing
 end

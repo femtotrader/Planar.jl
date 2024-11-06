@@ -12,7 +12,7 @@ It specifies the amount and date of the order.
 Additional keyword arguments can be passed.
 
 """
-function pong!(
+function call!(
     s::IsolatedStrategy{Paper},
     ai::MarginInstance,
     t::Type{<:AnyMarketOrder};
@@ -38,7 +38,7 @@ It specifies the amount and date of the order.
 Additional keyword arguments can be passed.
 
 """
-function pong!(
+function call!(
     s::IsolatedStrategy{Paper}, ai, t::Type{<:AnyLimitOrder}; amount, date, kwargs...
 )
     !singlewaycheck(s, ai, t) && return nothing
@@ -50,10 +50,10 @@ end
 $(TYPEDSIGNATURES)
 
 Initiates asynchronous position closing for each asset instance in the strategy's universe. """
-function pong!(
+function call!(
     s::MarginStrategy{<:Union{Paper,Live}}, bp::ByPos, date, ::PositionClose; kwargs...
 )
     @sync for ai in s.universe
-        @async pong!(s, ai, bp, date, PositionClose(); kwargs...)
+        @async call!(s, ai, bp, date, PositionClose(); kwargs...)
     end
 end

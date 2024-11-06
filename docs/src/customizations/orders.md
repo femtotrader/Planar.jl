@@ -60,11 +60,11 @@ function ocoorder(
 end
 ```
 
-Next, we introduce two `pong!` functions to handle creating and updating simulated OCO orders:
+Next, we introduce two `call!` functions to handle creating and updating simulated OCO orders:
 
 ```julia
 @doc "Creates a simulated OCO order."
-function pong!(
+function call!(
     s::Strategy{Sim}, ::Type{Order{<:OCOOrderType}}, ai; date, kwargs...
 )
     o = ocoorder(s, ai; date, kwargs...)
@@ -74,7 +74,7 @@ function pong!(
 end
 
 @doc "Updates a simulated OCO order."
-function pong!(
+function call!(
     s::Strategy{Sim}, ::Type{<:Order{OCOOrderType}}, date::Datetime, ai; kwargs...
 )
     o = ocoorder(s, ai; date, kwargs...)
@@ -93,10 +93,10 @@ We can extend instruments to create new types such as `Asset` and `Derivative`, 
 
 Asset instances are parameterized by the type of the asset (e.g., asset, derivative) and the exchange they are associated with. By using `ExchangeID` as a parameter, we can fine-tune the behavior for specific exchanges.
 
-For example, if we want to handle OCO orders differently across exchanges in live mode, we can define `pong!` functions that are specialized based on the exchange parameter of the asset instance.
+For example, if we want to handle OCO orders differently across exchanges in live mode, we can define `call!` functions that are specialized based on the exchange parameter of the asset instance.
 
 ```julia
-function pong!(
+function call!(
     s::Strategy{Live}, 
     ::Type{Order{<:OCOOrderType}}, 
     ai::AssetInstance{A, ExchangeID{:bybit}}; 

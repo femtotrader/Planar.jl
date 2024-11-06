@@ -32,12 +32,12 @@ const TF = tf"1m"
 
 # function __init__() end
 
-function ping!(::Type{<:S}, ::StrategyMarkets)
+function call!(::Type{<:S}, ::StrategyMarkets)
     ["ETH/USDT:USDT", "BTC/USDT:USDT", "SOL/USDT:USDT"]
 end
 
-function ping!(t::Type{<:S}, config, ::LoadStrategy)
-    syms = ping!(S, StrategyMarkets())
+function call!(t::Type{<:S}, config, ::LoadStrategy)
+    syms = call!(S, StrategyMarkets())
     exc = st.Exchanges.getexchange!(config.exchange; sandbox=true)
     uni = st.AssetCollection(syms; load_data=false, timeframe=TF, exc, config.margin)
     s = Strategy(@__MODULE__, config.mode, config.margin, TF, exc, uni; config)
@@ -46,19 +46,19 @@ function ping!(t::Type{<:S}, config, ::LoadStrategy)
     s
 end
 
-ping!(_::S, ::WarmupPeriod) = begin
+call!(_::S, ::WarmupPeriod) = begin
     Day(1)
 end
 
-function ping!(s::S, ts::DateTime, ctx)
+function call!(s::S, ts::DateTime, ctx)
     date = ts
     foreach(s.universe) do ai
         if isopen(ai)
             if rand(Bool)
-                pong!(s, ai, MarketOrder{Sell}; amount=cash(ai), date)
+                call!(s, ai, MarketOrder{Sell}; amount=cash(ai), date)
             end
         elseif cash(s) > ai.limits.cost.min && rand(Bool)
-            pong!(
+            call!(
                 s,
                 ai,
                 MarketOrder{Buy};
@@ -70,21 +70,21 @@ function ping!(s::S, ts::DateTime, ctx)
 end
 
 function buy!(s::S, ai, ats, ts)
-    pong!(s, ai, ect.CancelOrders(); t=Sell)
+    call!(s, ai, ect.CancelOrders(); t=Sell)
     @deassert ai.asset.qc == nameof(s.cash)
     price = closeat(ai.ohlcv, ats)
     amount = st.freecash(s) / 10.0 / price
     if amount > 0.0
-        t = pong!(s, ai, IOCOrder{Buy}; amount, date=ts)
+        t = call!(s, ai, IOCOrder{Buy}; amount, date=ts)
     end
 end
 
 function sell!(s::S, ai, ats, ts)
-    pong!(s, ai, ect.CancelOrders(); t=Buy)
+    call!(s, ai, ect.CancelOrders(); t=Buy)
     amount = max(inv(closeat(ai, ats)), inst.freecash(ai))
     price = closeat(ai.ohlcv, ats)
     if amount > 0.0
-        t = pong!(s, ai, IOCOrder{Sell}; amount, date=ts)
+        t = call!(s, ai, IOCOrder{Sell}; amount, date=ts)
     end
 end
 

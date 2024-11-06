@@ -2,7 +2,7 @@ using Executors.Instances: leverage!, positionside, leverage
 using Executors: hasorders
 using Executors.OrderTypes: postoside
 using .Lang: splitkws
-import Executors: pong!
+import Executors: call!
 
 const _PROTECTIONS_WARNING = """
 !!! warning "Protections"
@@ -28,7 +28,7 @@ function singlewaycheck(s, ai, t)
 end
 
 @doc "Creates a simulated limit order, updating a levarged position."
-function pong!(
+function call!(
     s::IsolatedStrategy{Sim},
     ai::MarginInstance,
     t::Type{<:AnyLimitOrder};
@@ -48,7 +48,7 @@ end
 @doc """"Creates a simulated market order, updating a levarged position.
 $_PROTECTIONS_WARNING
 """
-function pong!(
+function call!(
     s::IsolatedStrategy{Sim},
     ai::MarginInstance,
     t::Type{<:AnyMarketOrder};
@@ -64,7 +64,7 @@ function pong!(
 end
 
 @doc "Closes a leveraged position."
-function pong!(
+function call!(
     s::MarginStrategy{<:Union{Paper,Sim}},
     ai::MarginInstance,
     side::ByPos,
@@ -72,16 +72,16 @@ function pong!(
     ::PositionClose;
     kwargs...,
 )::Bool
-    pong!(s, ai, CancelOrders(); t=BuyOrSell)
+    call!(s, ai, CancelOrders(); t=BuyOrSell)
     v = close_position!(s, ai, side, date; kwargs...)
     @deassert !isopen(ai, side)
     v
 end
 
 @doc "Closes all strategy positions"
-function pong!(s::MarginStrategy{Sim}, side::ByPos, date, ::PositionClose; kwargs...)
+function call!(s::MarginStrategy{Sim}, side::ByPos, date, ::PositionClose; kwargs...)
     LittleDict(
-        ai => pong!(s, ai, side, date, PositionClose(); kwargs...) for ai in s.universe
+        ai => call!(s, ai, side, date, PositionClose(); kwargs...) for ai in s.universe
     )
 end
 
@@ -93,7 +93,7 @@ _lev_value(lev) = lev
 
 The leverage is not updated when the position has pending orders or is open (and it will return false in such cases.)
 "
-function pong!(
+function call!(
     s::MarginStrategy{<:Union{Sim,Paper}},
     ai::MarginInstance,
     lev,

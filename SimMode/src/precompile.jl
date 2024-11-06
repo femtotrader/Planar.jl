@@ -1,6 +1,6 @@
 using .Lang: @preset, @precomp, @m_str, @ignore
 
-include("precompile_pong.jl")
+include("precompile_call.jl")
 
 @preset let
     st.Instances.Exchanges.Python.py_start_loop()
@@ -23,6 +23,6 @@ include("precompile_pong.jl")
         start!(s, ect.Context(now() - Year(1), tf"1d", Year(1)))
         start!(s; doreset=false)
     end
-    @compile_pong
+    @compile_call
     st.Instances.Exchanges.Python.py_stop_loop()
 end
