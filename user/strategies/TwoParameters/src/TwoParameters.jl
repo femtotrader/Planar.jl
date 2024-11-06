@@ -1,5 +1,5 @@
 module TwoParameters
-using PingPong
+using Vindicta
 const DESCRIPTION = "TwoParameters"
 const EXC = :okx
 const MARGIN = NoMargin

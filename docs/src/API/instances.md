@@ -1,5 +1,5 @@
 # Instances
 
 ```@autodocs
-Modules = [PingPong.Engine.Instances]
+Modules = [Vindicta.Engine.Instances]
 ```

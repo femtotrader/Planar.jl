@@ -35,7 +35,7 @@ end
 #     exchange = esc(:exchange)
 #     quote
 #         @info "Setting Exchange"
-#         PingPong.setexchange!(Symbol($exchange))
+#         Vindicta.setexchange!(Symbol($exchange))
 #     end
 # end
 
@@ -148,6 +148,6 @@ Downsamples ohlcv data from a timeframe to another.
 end
 
 """
-PingPong CLI
+Vindicta CLI
 """
 @main

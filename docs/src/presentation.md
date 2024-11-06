@@ -1,4 +1,4 @@
-# Why PingPong?
+# Why Vindicta?
 
 ```@eval
 using Markdown

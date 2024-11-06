@@ -8,7 +8,7 @@ using GLMakie
 using WGLMakie
 ```
 
-PingPong enhances Makie with specialized plotting recipes for financial analysis:
+Vindicta enhances Makie with specialized plotting recipes for financial analysis:
 
 - OHLCV (Open-High-Low-Close Volume) charts
 - Detailed trade history visualization

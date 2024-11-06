@@ -6,7 +6,7 @@ To introduce new `pong!` functions, adhere to the following procedure:
 
 2. **Function Implementation**: Define the necessary functions in the `{SimMode,PaperMode,LiveMode}/src/pong.jl` files. If the behavior for paper and live mode is identical, use `RTStrategy` as a dispatch type and place the shared function definition in `PaperMode/src/pong.jl`.
 
-3. **Macro Modification**: In the `PingPong/src/pingpong.jl` file, modify the `@strategyeng!` macro (or the `@contractsenv!` macro for functions dealing with derivatives). Import your new trait, for example, `using .pp.Engine.Executors: MyNewTrait`.
+3. **Macro Modification**: In the `Vindicta/src/vindicta.jl` file, modify the `@strategyeng!` macro (or the `@contractsenv!` macro for functions dealing with derivatives). Import your new trait, for example, `using .vdt.Engine.Executors: MyNewTrait`.
 
 Conform to the established argument order convention for the strategy signature:
 

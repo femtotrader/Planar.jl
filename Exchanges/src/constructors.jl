@@ -686,7 +686,7 @@ end
 
 const CCXT_REQUIRED_LIVE2 = ((:setMarginMode,), (:setPositionMode,))
 
-@doc """Checks if the python exchange instance supports all the calls required by PingPong.
+@doc """Checks if the python exchange instance supports all the calls required by Vindicta.
 
 $(TYPEDSIGNATURES)
 

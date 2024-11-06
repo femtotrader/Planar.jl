@@ -1,5 +1,5 @@
 module BBWithOpt
-using PingPong
+using Vindicta
 
 const DESCRIPTION = "BBWithOpt"
 const EXC = :phemex

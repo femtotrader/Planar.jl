@@ -1,5 +1,5 @@
 module ExampleMargin
-using PingPong
+using Vindicta
 
 const DESCRIPTION = "ExampleMargin"
 const MARGIN = Isolated

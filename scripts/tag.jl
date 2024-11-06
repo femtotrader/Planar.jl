@@ -2,7 +2,7 @@ using TOML
 using Pkg
 
 function tag_repo(; major=nothing, minor=nothing, patch=nothing)
-    Pkg.activate("PingPong")
+    Pkg.activate("Vindicta")
     p = Pkg.project()
     v = p.version
     if isnothing(major)
@@ -24,12 +24,12 @@ function tag_repo(; major=nothing, minor=nothing, patch=nothing)
     open(p.path, "w") do f
         TOML.print(f, toml)
     end
-    Pkg.activate("PingPongInteractive")
+    Pkg.activate("VindictaInteractive")
     Pkg.resolve()
-    Pkg.activate("PingPongDev")
+    Pkg.activate("VindictaDev")
     Pkg.resolve()
-    Pkg.activate("PingPong")
-    run(`git add PingPong/Project.toml PingPongDev/Manifest.toml PingPongInteractive/Manifest.toml`)
+    Pkg.activate("Vindicta")
+    run(`git add Vindicta/Project.toml VindictaDev/Manifest.toml VindictaInteractive/Manifest.toml`)
     run(`git commit -m "v$v_string"`)
     run(`git tag v$v_string`)
 end

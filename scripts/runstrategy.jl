@@ -1,6 +1,6 @@
 #!/usr/bin/env julia
 
-using PingPong
+using Vindicta
 @environment!
 
 strat_name = Symbol(get(ARGS, 1, ""))

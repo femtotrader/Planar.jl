@@ -1,5 +1,5 @@
 module SimpleStrategy
-using PingPong
+using Vindicta
 const DESCRIPTION = "SimpleStrategy"
 const EXC = :binance
 const MARGIN = NoMargin

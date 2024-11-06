@@ -1,4 +1,4 @@
 # Misc
 ```@autodocs
-Modules = [PingPong.Misc]
+Modules = [Vindicta.Misc]
 ```

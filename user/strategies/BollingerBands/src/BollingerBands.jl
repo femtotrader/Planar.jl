@@ -1,5 +1,5 @@
 module BollingerBands
-using PingPong
+using Vindicta
 
 const DESCRIPTION = "BollingerBands"
 const EXC = :phemex

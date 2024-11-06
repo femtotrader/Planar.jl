@@ -1,5 +1,5 @@
 # Engine
 
 ```@autodocs
-Modules = [PingPong.Engine]
+Modules = [Vindicta.Engine]
 ```

@@ -1,16 +1,16 @@
-# What is PingPong?
+# What is Vindicta?
 
-PingPong is a bot for running automated trading strategies. It allows for interactive experimentation of new strategies through the julia REPL, and their live deployment to trading exchanges with almost zero code replication.
+Vindicta is a bot for running automated trading strategies. It allows for interactive experimentation of new strategies through the julia REPL, and their live deployment to trading exchanges with almost zero code replication.
 
 The bot is based around the concept of _strategies_. A strategy requires a primary currency which represents its balance and a primary exchange where all the orders will be forwarded (and against which they will be checked for validity).
 
-Writing a pingpong strategy is equivalent to writing a julia module, that the bot will load (either dynamically or statically on deployments). Within the module you import the pingpong interface, such that you can specialize `ping!` entry functions relative only to your strategy, the rest is up to you.
+Writing a vindicta strategy is equivalent to writing a julia module, that the bot will load (either dynamically or statically on deployments). Within the module you import the vindicta interface, such that you can specialize `ping!` entry functions relative only to your strategy, the rest is up to you.
 
 The framework provides a long list of convenience or utility functions to manipulate the strategy and assets objects defined in different modules. In fact the bot is quite modular and is made of almost 30 packages, even though the majority of them is required to actually run the bot.
 
 From the strategy you can manage orders through `pong!` functions and expect them to be executed during simulation and live trading (through the CCXT library, and other venues in a possible future) while returning _the same data structures_ even if populated through different means.
 
-The advantage of PingPong over trading bots written in other programming languages is its flexibility thanks to the julia parametric type system that allows to extend the bot by specializing functions to perform ad hoc logic. An exchange is behaving differently compared to others? You can specialize the `balance` function over only that particular exchange by defining:
+The advantage of Vindicta over trading bots written in other programming languages is its flexibility thanks to the julia parametric type system that allows to extend the bot by specializing functions to perform ad hoc logic. An exchange is behaving differently compared to others? You can specialize the `balance` function over only that particular exchange by defining:
 
 ``` julia
 balance(exc::Exchange{:MyQuirkyExchange}, args...) ... end
@@ -34,8 +34,8 @@ Recommended installation is through docker. There are 4 images:
 
 |                                | precompiled 🧰               | sysimage 📦 |
 |--------------------------------|------------------------------|---|
-| only runtime 🖥‍                 | `pingpong-precomp`             | `pingpong-sysimage`   |
-| with plotting and optimizer 📊 | `pingpong-precomp-interactive` | `pingpong-sysimage-interactive` |
+| only runtime 🖥‍                 | `vindicta-precomp`             | `vindicta-sysimage`   |
+| with plotting and optimizer 📊 | `vindicta-precomp-interactive` | `vindicta-sysimage-interactive` |
 
 ```@setup
 # Precompiled images are smaller, more flexible but have a slower startup. Compiled images are bigger, there might be unexpected issues, but are faster to startup.
@@ -44,22 +44,22 @@ Recommended installation is through docker. There are 4 images:
 
 
 ```shell
-docker pull docker.io/panifie/pingpong-precomp
-docker run -it --rm docker.io/panifie/pingpong-precomp julia
-using PingPong # or PingPongInteractive for plotting and optimization
+docker pull docker.io/panifie/vindicta-precomp
+docker run -it --rm docker.io/panifie/vindicta-precomp julia
+using Vindicta # or VindictaInteractive for plotting and optimization
 ```
 
 ## Install (git)
 
-PingPong.jl requires at least Julia 1.9. Is not in the julia registry, to install it do the following:
+Vindicta.jl requires at least Julia 1.9. Is not in the julia registry, to install it do the following:
 
 - Clone the repository:
 ```bash
-git clone --recurse-submodules https://github.com/panifie/PingPong.jl
+git clone --recurse-submodules https://github.com/panifie/Vindicta.jl
 ```
 - Check the env vars in `.envrc`, then enabled them with `direnv allow`.
 ```bash
-cd PingPong.jl
+cd Vindicta.jl
 direnv allow
 ```
 - Activate the project specified by `JULIA_PROJECT` in the `.envrc`.
@@ -69,7 +69,7 @@ julia
 - Download and build dependencies:
 ```julia
 ] instantiate
-using PingPong  # or PingPongInteractive for plotting and optimization
+using Vindicta  # or VindictaInteractive for plotting and optimization
 ```
 
 ## Quickstart
@@ -77,7 +77,7 @@ using PingPong  # or PingPongInteractive for plotting and optimization
 Load the default strategy, which you can look up at `./user/strategies/SimpleStrategy/` or [make your own](./strategy.md#Setup-a-new-strategy).
 
 ```julia
-using PingPong
+using Vindicta
 
 @environment! # brings modules in scope
 # arguments override defaults (see `s.config` fields)
@@ -108,12 +108,12 @@ Plot the simulated trades.
 ```julia
 using Plotting
 using WGLMakie # or `GLMakie`
-plots!() # or `Pkg.activate("PingPongInteractive"); using PingPongInteractive`
+plots!() # or `Pkg.activate("VindictaInteractive"); using VindictaInteractive`
 balloons(s)
 ```
 
 ## Packages
-The most relevant underlying PingPong modules.
+The most relevant underlying Vindicta modules.
 
 - [Engine](./engine/engine.md): The actual backtest engine.
 - [Strategies](./strategy.md): Types and concept for building strategies.

@@ -1,6 +1,6 @@
 include("noprecomp.jl")
 using Pkg: Pkg;
-Pkg.activate("PingPong")
+Pkg.activate("Vindicta")
 let dse = "~/.julia/environments/$(VERSION)/"
     if dse ∉ LOAD_PATH
         push!(LOAD_PATH, dse)
@@ -9,7 +9,7 @@ end
 using Documenter, DocStringExtensions, Suppressor
 
 # Modules
-using PingPong
+using Vindicta
 project_path = dirname(dirname(Pkg.project().path))
 function use(name, args...; activate=false)
     activate_and_import() = begin
@@ -42,13 +42,13 @@ function use(name, args...; activate=false)
     end
 end
 
-if isempty(get(ENV, "PINGPONG_DOCS_SKIP_BUILD", ""))
-    withenv("PINGPONG_DOCS_SKIP_BUILD" => "true") do
-        run(`julia --project=PingPong docs/make.jl`)
+if isempty(get(ENV, "VINDICTA_DOCS_SKIP_BUILD", ""))
+    withenv("VINDICTA_DOCS_SKIP_BUILD" => "true") do
+        run(`julia --project=Vindicta docs/make.jl`)
     end
 end
 
-get(ENV, "PINGPONG_DOCS_LOADED", "false") == "true" || begin
+get(ENV, "VINDICTA_DOCS_LOADED", "false") == "true" || begin
     use(:Prices, "Data", "src", "prices.jl")
     use(:Fetch, "Fetch")
     use(:Processing, "Processing")
@@ -64,7 +64,7 @@ get(ENV, "PINGPONG_DOCS_LOADED", "false") == "true" || begin
     use(:Python, "Python")
     use(:StrategyTools, "StrategyTools")
     use(:StrategyStats, "StrategyStats")
-    using PingPong.Data.DataStructures
+    using Vindicta.Data.DataStructures
     @eval using Base: Timer
     ENV["LOADED"] = "true"
 end
@@ -81,10 +81,10 @@ function filter_strategy(t)
     end
 end
 
-get(ENV, "PINGPONG_DOCS_SKIP_BUILD", "") == "true" && exit()
+get(ENV, "VINDICTA_DOCS_SKIP_BUILD", "") == "true" && exit()
 
 makedocs(;
-    sitename="PingPong.jl",
+    sitename="Vindicta.jl",
     pages=[
         "Introduction" => ["presentation.md", "index.md"],
         "Types" => "types.md",

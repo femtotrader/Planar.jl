@@ -1,5 +1,5 @@
 # DataFrame utils
 
 ```@autodocs
-Modules = [PingPong.Data.DFUtils]
+Modules = [Vindicta.Data.DFUtils]
 ```

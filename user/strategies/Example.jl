@@ -1,5 +1,5 @@
 module Example
-using PingPong
+using Vindicta
 
 const DESCRIPTION = "Example"
 const EXC = :phemex

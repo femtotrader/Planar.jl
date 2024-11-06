@@ -13,7 +13,7 @@ $(TYPEDSIGNATURES)
 This function recursively searches for a file with the specified `name` starting from `cur_path`. It stops once the file is found or when it reaches the root directory.
 
 """
-function find_config(cur_path=splitpath(pwd()); name="pingpong.toml", dir="user")
+function find_config(cur_path=splitpath(pwd()); name="vindicta.toml", dir="user")
     length(cur_path) == 1 && return nothing
     this_file = joinpath(cur_path..., name)
     isfile(this_file) && return this_file
@@ -31,18 +31,18 @@ This function returns the directory of the active project if it exists. Otherwis
 
 """
 function default_dir()
-    ppath = Base.active_project()
-    ppath = if isempty(ppath)
+    this_path = Base.active_project()
+    this_path = if isempty(this_path)
         get(ENV, "JULIA_PROJECT", "")
     else
-        dirname(ppath)
+        dirname(this_path)
     end
-    if isempty(ppath)
-        ppath = "."
+    if isempty(this_path)
+        this_path = "."
     else
-        ppath = ppath * "/../"
+        this_path = this_path * "/../"
     end
-    joinpath(dirname(ppath), "user")
+    joinpath(dirname(this_path), "user")
 end
 
 user_dir() = begin
@@ -62,11 +62,11 @@ This function attempts to find the configuration file using `find_config()`. If 
 function config_path()
     path = find_config()
     if isnothing(path)
-        path = joinpath(default_dir(), "pingpong.toml")
+        path = joinpath(default_dir(), "vindicta.toml")
         if !ispath(path)
-            ppath = Base.active_project()
-            @warn "Config file not found at $path, fallback to $ppath"
-            path = ppath
+            this_path = Base.active_project()
+            @warn "Config file not found at $path, fallback to $this_path"
+            path = this_path
         end
     end
     return path
@@ -107,7 +107,7 @@ function exchange_keys(name; sandbox, account="")::Dict{String,Any}
         Dict()
     end
     for k in names
-        this_name = "PINGPONG_$(uppercase(exc_name))_$(uppercase(k))"
+        this_name = "VINDICTA_$(uppercase(exc_name))_$(uppercase(k))"
         if haskey(ENV, this_name)
             ans[k] = ENV[this_name]
         end

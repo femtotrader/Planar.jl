@@ -80,7 +80,7 @@ function coverage_directories(sep=",")
     buf = IOBuffer()
     try
         for name in sort!([n for n in names])
-            if name ∈ ("Zarr", "PingPongDev", "Cli", "PingPongInteractive", "Temporal")
+            if name ∈ ("Zarr", "VindictaDev", "Cli", "VindictaInteractive", "Temporal")
                 continue
             else
                 write(buf, joinpath(name, "src"), sep)

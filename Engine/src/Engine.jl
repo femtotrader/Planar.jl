@@ -9,4 +9,4 @@ else
     include("module.jl")
 end
 
-end # module PingPong
+end # module Vindicta

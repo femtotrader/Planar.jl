@@ -1,5 +1,5 @@
 # Data
 
 ```@autodocs
-Modules = [PingPong.Data]
+Modules = [Vindicta.Data]
 ```

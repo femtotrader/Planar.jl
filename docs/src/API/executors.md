@@ -1,5 +1,5 @@
 # Executors
 
 ```@autodocs
-Modules = [PingPong.Engine.Executors]
+Modules = [Vindicta.Engine.Executors]
 ```

@@ -1,5 +1,5 @@
 module RandomStratIso
-using PingPong
+using Vindicta
 
 const DESCRIPTION = "RandomStratIso"
 const EXC = :bybit

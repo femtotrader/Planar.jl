@@ -1,5 +1,5 @@
 module TwoIntervals
-using PingPong
+using Vindicta
 
 const DESCRIPTION = "TwoIntervals"
 const EXC = :binance

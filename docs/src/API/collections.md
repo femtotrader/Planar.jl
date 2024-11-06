@@ -1,5 +1,5 @@
 # Collections
 
 ```@autodocs
-Modules = [PingPong.Engine.Collections]
+Modules = [Vindicta.Engine.Collections]
 ```

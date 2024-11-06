@@ -228,11 +228,11 @@ function bybitdownload(
                 bybitsave(s, ohlcv; path)
                 ca.save_cache(cache_key(s; path), last_file)
             elseif !isnothing(tmpdata)
-                tmppath = joinpath(_tempdir(), "pingpong")
-                mkpath(tmppath)
+                tmp_path = joinpath(_tempdir(), "vindicta")
+                mkpath(tmp_path)
                 name = basename(tempname())
-                ca.save_cache(name, tmpdata; cache_path=tmppath)
-                @warn "bybit: saving temp data" sym = s path = joinpath(tmppath, name)
+                ca.save_cache(name, tmpdata; cache_path=tmp_path)
+                @warn "bybit: saving temp data" sym = s path = joinpath(tmp_path, name)
             end
             @pbupdate!
         end "bybit scraper: failed to fetch $s" (quit[] = quit[] - 1)

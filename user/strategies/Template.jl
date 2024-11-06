@@ -1,5 +1,5 @@
 module Template
-using PingPong
+using Vindicta
 
 const DESCRIPTION = "Template"
 const EXC = Symbol()

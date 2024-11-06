@@ -1,6 +1,6 @@
 .conda/*
 .conda
 .conda/
-.PingPong.so
+.Vindicta.so
 */.conda/*
 wip.jl

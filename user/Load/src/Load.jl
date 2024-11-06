@@ -2,7 +2,7 @@ module Load
 using PrecompileTools
 
 @compile_workload begin
-    using PingPong
+    using Vindicta
     using Stubs
     using Scrapers
     using Metrics

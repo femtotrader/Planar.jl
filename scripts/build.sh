@@ -1,23 +1,23 @@
 #!/usr/bin/env bash
 
 set -e
-tmppath=${BUILD_TMP_PATH:-/tmp/pingpong-build}
-# repo="https://github.com/panifie/PingPong.jl"
+tmp_path=${BUILD_TMP_PATH:-/tmp/vindicta-build}
+# repo="https://github.com/panifie/Vindicta.jl"
 repo=${BUILD_REPO:-.}
-image=${1:-${BUILD_IMAGE:-pingpong}}
+image=${1:-${BUILD_IMAGE:-vindicta}}
 if [ -n "$2" ]; then
     shift
 fi
 
-if [ ! -e "$tmppath" ]; then
-    git clone --depth=1 "$repo" "$tmppath"
-    cd $tmppath
+if [ ! -e "$tmp_path" ]; then
+    git clone --depth=1 "$repo" "$tmp_path"
+    cd $tmp_path
     git submodule update --init
     direnv allow
 fi
 
-cp $tmppath/Dockerfile $repo/ || true
-cd $tmppath
+cp $tmp_path/Dockerfile $repo/ || true
+cd $tmp_path
 
 COMPILE_SCRIPT="$(sed "s/$/\\\\n/" "$repo/scripts/compile.jl")"
 

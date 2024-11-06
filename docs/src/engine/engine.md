@@ -1,10 +1,10 @@
 # Engine
 
-Within the PingPong "model", we use the _ping!_ and _pong!_ functions to communicate between _strategies_ and _executors_. The executor "pings" the strategy, implying that the strategy should do or return something. On the other hand, the strategy "pongs" the executor, expecting it to do or return something.
+Within the Vindicta "model", we use the _ping!_ and _pong!_ functions to communicate between _strategies_ and _executors_. The executor "pings" the strategy, implying that the strategy should do or return something. On the other hand, the strategy "pongs" the executor, expecting it to do or return something.
 
-In the PingPong framework, the user generally only writes `ping!` functions within their strategies. However, if the user requires custom behavior that is not implemented by the framework, they may need to write `pong!` functions.
+In the Vindicta framework, the user generally only writes `ping!` functions within their strategies. However, if the user requires custom behavior that is not implemented by the framework, they may need to write `pong!` functions.
 
-Unlike other trading bots that offer a set of methods for tuning purposes, usually tied to the super class of the strategy, PingPong conventionally deals only with `ping!` and `pong!` functions. This allows you to know that whenever a _pong!_ call is made from the strategy, it is a point where simulation and live execution may diverge.
+Unlike other trading bots that offer a set of methods for tuning purposes, usually tied to the super class of the strategy, Vindicta conventionally deals only with `ping!` and `pong!` functions. This allows you to know that whenever a _pong!_ call is made from the strategy, it is a point where simulation and live execution may diverge.
 
 The ping and pong functions are implemented in a way that they dispatch differently according to the execution mode of the strategy. There are 3 execution modes:
 

@@ -1,5 +1,5 @@
 module MarginStrat
-using PingPong
+using Vindicta
 
 const DESCRIPTION = "MarginStrat"
 const EXC = :binance
