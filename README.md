@@ -124,8 +124,4 @@ using Vindicta  # or VindictaInteractive for plotting and optimization
 
 Read the :book: documentation ([link](https://panifie.github.io/Vindicta.jl/)) to learn how to get started with the bot.
 
-For questions and direct support you can join the :speech_balloon: discord chat ([link](https://discord.gg/xDeBmSzDUr))
-
 [PROJECT STATUS](https://github.com/panifie/Vindicta.jl/issues/28)
-
-[^1]: Not to be confused with bisimulation :)
