@@ -1,4 +1,4 @@
-[![Discord](https://img.shields.io/discord/1079307635934904370)](https://discord.gg/xDeBmSzDUr) [![build-status-docs](https://github.com/panifie/Vindicta.jl/actions/workflows/docs.yml/badge.svg?branch=master)](https://panifie.github.io/Vindicta.jl/) [![build-status-docker](https://github.com/panifie/Vindicta.jl/actions/workflows/build.yml/badge.svg?branch=master)](https://github.com/panifie/Vindicta.jl/actions/workflows/build.yml) 
+[![build-status-docs](https://github.com/panifie/Vindicta.jl/actions/workflows/docs.yml/badge.svg?branch=master)](https://panifie.github.io/Vindicta.jl/) [![build-status-docker](https://github.com/panifie/Vindicta.jl/actions/workflows/build.yml/badge.svg?branch=master)](https://github.com/panifie/Vindicta.jl/actions/workflows/build.yml) 
 [![build-status-docker-v1.0.1](https://github.com/panifie/Vindicta.jl/actions/workflows/build.yml/badge.svg?branch=v1.0.1)](https://github.com/panifie/Vindicta.jl/actions/workflows/build.yml)[![tests](https://github.com/panifie/Vindicta.jl/actions/workflows/tests.yml/badge.svg?branch=master)](https://github.com/panifie/Vindicta.jl/actions/workflows/tests.yml)
 
 
@@ -7,11 +7,6 @@
 > _Vindicta, advanced solutions for demanding practitioners_
 
 Vindicta is a framework designed to help you build your own trading bot. While it is primarily built around the [CCXT](https://github.com/ccxt/ccxt) API, it can be extended to work with any custom exchange, albeit with some effort.
-
-### One Language to Rule Them All
-Many trading bots are implemented in Python, which can lead to slow or hard-to-customize vectorized backtesters. By writing trading strategies in Julia, Vindicta can perform efficiently during both backtesting and live execution. Other bots implement a faster backtester in another language (Cython, Numba, Rust) but still pay the price for calling code from strategies written in Python, or require the user to implement the strategy itself in a less ergonomic language.
-
-Vindicta, being fully written in Julia, does not incur these trade-offs and can offer performant execution in both simulations and live trading. Moreover, sharing the same language means that anyone who manages trading strategies in Julia can also contribute to making the Vindicta backtester (and the rest) better and faster for every other user. In other words, a contribution to the Vindicta codebase is a worthwhile investment more so than over other non-Julia trading frameworks.
 
 ### Customizations
 Julia's dispatch mechanism makes it easy to customize any part of the bot without feeling like you are monkey patching code. It allows you to easily implement ad-hoc behavior to solve exchange API inconsistencies (despite CCXT's best efforts at unification). You don't have to wait for upstream to fix some annoying exchange issue, you can fix most things by dispatching a function instead of having to maintain a fork with a patchset. Ad-hoc customizations are non-intrusive.
