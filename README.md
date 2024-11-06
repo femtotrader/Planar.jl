@@ -2,8 +2,6 @@
 [![build-status-docker-v1.0.1](https://github.com/panifie/Vindicta.jl/actions/workflows/build.yml/badge.svg?branch=v1.0.1)](https://github.com/panifie/Vindicta.jl/actions/workflows/build.yml)[![tests](https://github.com/panifie/Vindicta.jl/actions/workflows/tests.yml/badge.svg?branch=master)](https://github.com/panifie/Vindicta.jl/actions/workflows/tests.yml)
 
 
-![Ping Pong](./docs/vindictalogo-384.png)
-
 <!-- PRESENTATION BEGIN -->
 
 > _Vindicta, advanced solutions for demanding practitioners_
